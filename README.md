@@ -1,6 +1,6 @@
 # Dynamic Reputation Prototype
 
-This application pulls messages from the GCP Pub/Sub topic and updates the FHIR Store accordingly.
+This application is a prototype of the Dynamic Reputation model.
 
 ## Environment Setup (Without Docker)
 
