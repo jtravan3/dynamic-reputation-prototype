@@ -14,10 +14,10 @@ brew install maven
 2.) Clone down the repository from GitLab
 
 ```bash
-git clone git@git.carekinesis.net:integration-services/dynamic-reputation-prototype.git
+git clone git@git.github.com:jtravan3/dynamic-reputation-prototype.git
 ```
 
-3.) Contact [John Ravan](mailto:jravan@trhc.com) in order to get the values for the `application.properties`
+3.) Contact [John Ravan](mailto:john@jtravan.com) in order to get the values for the `application.properties`
 
 4.) After populating the properties build the project
 
@@ -25,7 +25,7 @@ git clone git@git.carekinesis.net:integration-services/dynamic-reputation-protot
 ./mvnw clean install
 ```
 
-5.) Run the worker.
+5.) Run the application.
 
 ```bash
 ./mvnw spring-boot:run
@@ -44,10 +44,10 @@ auto re-deploy.
 2.) Clone down the repository from GitLab
 
 ```bash
-git clone git@git.carekinesis.net:integration-services/dynamic-reputation-prototype.git
+git clone git@git.github.com:jtravan3/dynamic-reputation-prototype.git
 ```
 
-3.) Contact [John Ravan](mailto:jravan@trhc.com) in order to get the values for the `application.properties`
+3.) Contact [John Ravan](mailto:john@jtravan.com) in order to get the values for the `application.properties`
 
 4.) From the root directory run the following command to build the project.
 
