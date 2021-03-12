@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  dynamic-reputation-prototype:
+    image: docker.io/jtravan3/dynamic-reputation-prototype:latest
+    container_name: dynamic-reputation-prototype
+    ports:
+      - 5000:5000
