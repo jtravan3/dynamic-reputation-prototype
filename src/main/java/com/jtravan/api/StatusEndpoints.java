@@ -3,6 +3,9 @@ package com.jtravan.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.jtravan.components.EntryPoint;
+import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +34,13 @@ public class StatusEndpoints {
 
     private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
+    private final EntryPoint entryPoint;
+
+    @Autowired
+    public StatusEndpoints(@NonNull EntryPoint entryPoint) {
+        this.entryPoint = entryPoint;
+    }
+
     @GetMapping(value = "health", produces = MediaType.APPLICATION_JSON_VALUE)
     public String health() throws JsonProcessingException {
         Map<String, String> healthStatus = new HashMap<>();
@@ -44,6 +54,14 @@ public class StatusEndpoints {
         info.put("name", applicationName);
         info.put("version", applicationVersion);
         info.put("description", applicationDescription);
+        return objectWriter.writeValueAsString(info);
+    }
+
+    @GetMapping(value = "start", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String start() throws InterruptedException, JsonProcessingException {
+        entryPoint.run();
+        Map<String, String> info = new HashMap<>();
+        info.put("started", "true");
         return objectWriter.writeValueAsString(info);
     }
 }
