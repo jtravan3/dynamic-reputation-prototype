@@ -1,16 +1,17 @@
 package com.jtravan.components;
 
-
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @CommonsLog
-@Profile("!test")
 public class EntryPoint {
 
-    public void run(String... args) {
+    @Async
+    public CompletableFuture<String> run() throws InterruptedException {
         while(true) {
             try {
                 Thread.sleep(5000);
