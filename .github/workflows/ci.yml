@@ -18,10 +18,13 @@ jobs:
       - name: Test with Maven
         run: ./mvnw -B test --file pom.xml
       - name: Build Image with JIB
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
         run: ./mvnw compile jib:build
-        env:
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCP_SA_KEY }}
-          GOOGLE_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
   deploy:
 
     runs-on: ubuntu-latest
