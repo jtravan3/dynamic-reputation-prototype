@@ -18,10 +18,13 @@ jobs:
       - name: Test with Maven
         run: ./mvnw -B test --file pom.xml
       - name: Build Image with JIB
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
         run: ./mvnw compile jib:build
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
   deploy:
 
     runs-on: ubuntu-latest
@@ -35,4 +38,4 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
       - name: Deploy Docker to Google Cloud
-        run: gcloud run deploy dynamic-reputation-prototype --image docker.io/jtravan3/dynamic-reputation-prototype:latest --min-instances 5 --platform managed --region us-east1
+        run: gcloud run deploy dynamic-reputation-prototype --image gcr.io/plenary-shade-228414/dynamic-reputation-prototype:latest --min-instances 5 --platform managed --region us-east1
