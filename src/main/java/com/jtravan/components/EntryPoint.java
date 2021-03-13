@@ -2,20 +2,22 @@ package com.jtravan.components;
 
 
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @CommonsLog
 @Profile("!test")
-public class EntryPoint implements CommandLineRunner {
+public class EntryPoint {
 
-    @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         while(true) {
-            Thread.sleep(5000);
-            log.info("What's up homie?");
+            try {
+                Thread.sleep(5000);
+                log.info("What's up homie?");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
