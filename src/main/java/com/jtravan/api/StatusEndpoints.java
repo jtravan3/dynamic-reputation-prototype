@@ -58,7 +58,7 @@ public class StatusEndpoints {
     }
 
     @GetMapping(value = "start", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String start() throws InterruptedException, JsonProcessingException {
+    public String start() throws JsonProcessingException {
         entryPoint.run();
         Map<String, String> info = new HashMap<>();
         info.put("started", "true");

@@ -1,15 +1,16 @@
 CREATE TABLE execution_history (
+    id  serial primary key not null,
     userid varchar (50),
-    user_ranking varchar(20),
-    transaction_commit_ranking varchar(20),
-    transaction_system_ranking varchar(20),
-    transaction_eff_ranking varchar(20),
-    transaction_num_of_operations varchar(20),
+    user_ranking decimal,
+    transaction_commit_ranking decimal,
+    transaction_system_ranking decimal,
+    transaction_eff_ranking decimal,
+    transaction_num_of_operations integer,
     action_taken varchar(20),
-    reputation_score varchar(20),
-    transaction_execution_time varchar (50) not null,
-    percentage_affected varchar (10) not null,
+    reputation_score decimal,
+    transaction_execution_time decimal not null,
+    percentage_affected decimal not null,
     recalculation_needed boolean not null default 'n',
-    time_executed TIMESTAMP NOT NULL
+    time_executed TIMESTAMP NOT NULL DEFAULT now()
 );
 
