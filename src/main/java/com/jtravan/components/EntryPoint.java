@@ -27,12 +27,13 @@ public class EntryPoint {
                 Thread.sleep(5000);
                 dynamicReputationTransactionManager.addExecutionHistory("jtravan3",
                         0.45,
+                        "potato",
                         0.36,
                         0.23,
                         0.12,
                         23,
-                        LockingAction.ELEVATE,
                         4.23,
+                        LockingAction.ELEVATE,
                         1234.12,
                         34.1,
                         false );

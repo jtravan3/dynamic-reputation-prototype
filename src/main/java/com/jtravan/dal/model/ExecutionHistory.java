@@ -16,10 +16,14 @@ public class ExecutionHistory {
     @Column(name="id")
     private Long id;
 
-    @Column(name="userid")
-    private String userid;
+    @ManyToOne
+    @JoinColumn(name = "userid")
+    private User user;
     @Column(name="user_ranking")
     private Double user_ranking;
+    @ManyToOne
+    @JoinColumn(name = "transaction_id")
+    private Transaction transaction;
     @Column(name="transaction_commit_ranking")
     private Double transaction_commit_ranking;
     @Column(name="transaction_system_ranking")
@@ -28,10 +32,10 @@ public class ExecutionHistory {
     private Double transaction_eff_ranking;
     @Column(name="transaction_num_of_operations")
     private Integer transaction_num_of_operations;
-    @Column(name="action_taken")
-    private String action_taken;
     @Column(name="reputation_score")
     private Double reputation_score;
+    @Column(name="action_taken")
+    private String action_taken;
     @Column(name="transaction_execution_time")
     private Double transaction_execution_time;
     @Column(name="percentage_affected")
