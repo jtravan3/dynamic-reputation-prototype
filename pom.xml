@@ -112,7 +112,6 @@
                         </jvmFlags>
                         <ports>
                             <port>5000</port>
-                            <port>8080</port>
                         </ports>
                     </container>
                 </configuration>
