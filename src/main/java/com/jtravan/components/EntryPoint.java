@@ -2,10 +2,12 @@ package com.jtravan.components;
 
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -24,9 +26,14 @@ public class EntryPoint {
         while(true) {
             try {
                 Thread.sleep(5000);
-                String userId = dataAccessManager.getRandomUsername();
-                Double user_ranking = Math.random();
-                dataAccessManager.addUser(userId, user_ranking);
+                Random random = new Random();
+                String transaction_id = RandomStringUtils.randomAlphabetic(10, 50);
+                Double commit_ranking = Math.random();
+                Double system_ranking = Math.random();
+                Double eff_ranking = Math.random();
+                Integer num_of_operations = random.nextInt(200);
+                dataAccessManager.addTransaction(transaction_id, commit_ranking,
+                        system_ranking, eff_ranking, num_of_operations);
 //                dataAccessManager.addExecutionHistory("jtravan3",
 //                        0.45,
 //                        "potato",
@@ -39,7 +46,7 @@ public class EntryPoint {
 //                        1234.12,
 //                        34.1,
 //                        false );
-                log.info("Successfully added random user: " + userId + ", " + user_ranking);
+                log.info("Successfully added random transaction: " + transaction_id);
             } catch (Exception e) {
                 e.printStackTrace();
             }

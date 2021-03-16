@@ -1,6 +1,7 @@
 package com.jtravan.components;
 
 import com.jtravan.dal.ExecutionHistoryServiceImpl;
+import com.jtravan.dal.TransactionServiceImpl;
 import com.jtravan.dal.UserServiceImpl;
 import com.jtravan.dal.model.ExecutionHistory;
 import com.jtravan.dal.model.Transaction;
@@ -19,15 +20,31 @@ public class DataAccessManager {
 
     private final ExecutionHistoryServiceImpl executionHistoryService;
     private final UserServiceImpl userService;
+    private final TransactionServiceImpl transactionService;
     private final WebClient webClient;
 
     @Autowired
     public DataAccessManager(@NonNull ExecutionHistoryServiceImpl executionHistoryService,
                              @NonNull UserServiceImpl userService,
+                             @NonNull TransactionServiceImpl transactionService,
                              @NonNull WebClient webClient) {
         this.executionHistoryService = executionHistoryService;
         this.userService = userService;
+        this.transactionService = transactionService;
         this.webClient = webClient;
+    }
+
+    @Async
+    public void addTransaction(String transactionId, Double commit_ranking,
+                               Double system_ranking, Double eff_ranking,
+                               Integer num_of_operations) {
+        Transaction transaction = new Transaction();
+        transaction.setTransaction_id(transactionId);
+        transaction.setTransaction_commit_ranking(commit_ranking);
+        transaction.setTransaction_system_ranking(system_ranking);
+        transaction.setTransaction_eff_ranking(eff_ranking);
+        transaction.setTransaction_num_of_operations(num_of_operations);
+        transactionService.addTransaction(transaction);
     }
 
     @Async
