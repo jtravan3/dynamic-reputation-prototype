@@ -1,22 +1,53 @@
 package com.jtravan.components;
 
 import com.jtravan.dal.ExecutionHistoryServiceImpl;
+import com.jtravan.dal.UserServiceImpl;
 import com.jtravan.dal.model.ExecutionHistory;
 import com.jtravan.dal.model.Transaction;
 import com.jtravan.dal.model.User;
 import com.jtravan.model.LockingAction;
+import com.jtravan.model.RandomUsernameResponse;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
-public class DynamicReputationTransactionManager {
+public class DataAccessManager {
 
     private final ExecutionHistoryServiceImpl executionHistoryService;
+    private final UserServiceImpl userService;
+    private final WebClient webClient;
 
     @Autowired
-    public DynamicReputationTransactionManager(ExecutionHistoryServiceImpl executionHistoryService) {
+    public DataAccessManager(@NonNull ExecutionHistoryServiceImpl executionHistoryService,
+                             @NonNull UserServiceImpl userService,
+                             @NonNull WebClient webClient) {
         this.executionHistoryService = executionHistoryService;
+        this.userService = userService;
+        this.webClient = webClient;
+    }
+
+    @Async
+    public void addUser(String userId, Double user_ranking) {
+        User user = new User();
+        user.setUserid(userId);
+        user.setUser_ranking(user_ranking);
+        userService.addUser(user);
+    }
+
+    public String getRandomUsername() {
+        RandomUsernameResponse response = webClient
+                .get()
+                .uri("https://randomuser.me/api/")
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(RandomUsernameResponse.class)
+                .block();
+
+        return response.getResults().get(0).getLogin().getUsername();
     }
 
     @Async

@@ -1,6 +1,5 @@
 package com.jtravan.components;
 
-import com.jtravan.model.LockingAction;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,11 @@ import java.util.concurrent.CompletableFuture;
 @CommonsLog
 public class EntryPoint {
 
-    private final DynamicReputationTransactionManager dynamicReputationTransactionManager;
+    private final DataAccessManager dataAccessManager;
 
     @Autowired
-    public EntryPoint(@NonNull DynamicReputationTransactionManager dynamicReputationTransactionManager) {
-        this.dynamicReputationTransactionManager = dynamicReputationTransactionManager;
+    public EntryPoint(@NonNull DataAccessManager dataAccessManager) {
+        this.dataAccessManager = dataAccessManager;
     }
 
     @Async
@@ -25,20 +24,23 @@ public class EntryPoint {
         while(true) {
             try {
                 Thread.sleep(5000);
-                dynamicReputationTransactionManager.addExecutionHistory("jtravan3",
-                        0.45,
-                        "potato",
-                        0.36,
-                        0.23,
-                        0.12,
-                        23,
-                        4.23,
-                        LockingAction.ELEVATE,
-                        1234.12,
-                        34.1,
-                        false );
-                log.info("Successfully added execution history!");
-            } catch (InterruptedException e) {
+                String userId = dataAccessManager.getRandomUsername();
+                Double user_ranking = Math.random();
+                dataAccessManager.addUser(userId, user_ranking);
+//                dataAccessManager.addExecutionHistory("jtravan3",
+//                        0.45,
+//                        "potato",
+//                        0.36,
+//                        0.23,
+//                        0.12,
+//                        23,
+//                        4.23,
+//                        LockingAction.ELEVATE,
+//                        1234.12,
+//                        34.1,
+//                        false );
+                log.info("Successfully added random user: " + userId + ", " + user_ranking);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
