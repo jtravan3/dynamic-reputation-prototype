@@ -110,6 +110,10 @@
                             <jvmFlag>-Xms1024m</jvmFlag>
                             <jvmFlag>-Xmx2048m</jvmFlag>
                         </jvmFlags>
+                        <ports>
+                            <port>5000</port>
+                            <port>8080</port>
+                        </ports>
                     </container>
                 </configuration>
             </plugin>
