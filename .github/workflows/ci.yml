@@ -43,6 +43,4 @@ jobs:
       - name: Install Beta Components
         run: gcloud components install beta --quiet
       - name: Deploy Docker to Google Cloud
-        run: gcloud beta run deploy dynamic-reputation-prototype --image gcr.io/plenary-shade-228414/dynamic-reputation-prototype:latest --platform managed --region us-east1 --port 5000 --allow-unauthenticated --vpc-egress all --vpc-connector cloudrunsubnetconnector --quiet
-      - name: Add Cloud SQL Instance to Cloud Run Instance
-        run: gcloud run services update dynamic-reputation-prototype --add-cloudsql-instances plenary-shade-228414:us-east1:dynamic-reputation-database --platform managed --region us-east1
+        run: gcloud beta run deploy dynamic-reputation-prototype --image gcr.io/plenary-shade-228414/dynamic-reputation-prototype:latest --platform managed --region us-east1 --port 5000 --allow-unauthenticated --vpc-egress all --vpc-connector cloudrunsubnetconnector --quiet --add-cloudsql-instances plenary-shade-228414:us-east1:dynamic-reputation-database
