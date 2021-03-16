@@ -41,4 +41,4 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
       - name: Deploy Docker to Google Cloud
-        run: gcloud beta run deploy dynamic-reputation-prototype --image gcr.io/plenary-shade-228414/dynamic-reputation-prototype:latest --platform managed --region us-east1 --port 5000 --allow-unauthenticated --vpc-egress all --vpc-connector cloudrunsubnetconnector
+        run: gcloud beta run deploy dynamic-reputation-prototype --image gcr.io/plenary-shade-228414/dynamic-reputation-prototype:latest --platform managed --region us-east1 --port 5000 --allow-unauthenticated --vpc-egress all --vpc-connector cloudrunsubnetconnector --quiet
