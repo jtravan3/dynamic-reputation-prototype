@@ -4,4 +4,5 @@ import com.jtravan.dal.model.User;
 
 public interface UserService {
     void addUser(User user);
+    User getUserById(Integer id);
 }

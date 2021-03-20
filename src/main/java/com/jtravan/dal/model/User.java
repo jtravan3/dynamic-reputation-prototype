@@ -13,6 +13,8 @@ import javax.persistence.Table;
 public class User {
 
     @Id
+    @Column(name="id")
+    private Integer id;
     @Column(name="userid")
     private String userid;
     @Column(name="user_ranking")

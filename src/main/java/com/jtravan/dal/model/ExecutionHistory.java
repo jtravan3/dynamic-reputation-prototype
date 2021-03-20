@@ -33,9 +33,11 @@ public class ExecutionHistory {
     @Column(name="transaction_num_of_operations")
     private Integer transaction_num_of_operations;
     @Column(name="reputation_score")
-    private Double reputation_score;
+    private String reputation_score;
     @Column(name="action_taken")
     private String action_taken;
+    @Column(name="dominance_type")
+    private String dominance_type;
     @Column(name="transaction_execution_time")
     private Double transaction_execution_time;
     @Column(name="percentage_affected")

@@ -6,6 +6,7 @@ import com.jtravan.dal.UserServiceImpl;
 import com.jtravan.dal.model.ExecutionHistory;
 import com.jtravan.dal.model.Transaction;
 import com.jtravan.dal.model.User;
+import com.jtravan.model.DominanceType;
 import com.jtravan.model.LockingAction;
 import com.jtravan.model.RandomUsernameResponse;
 import lombok.NonNull;
@@ -15,6 +16,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Random;
+
 @Component
 public class DataAccessManager {
 
@@ -22,6 +25,7 @@ public class DataAccessManager {
     private final UserServiceImpl userService;
     private final TransactionServiceImpl transactionService;
     private final WebClient webClient;
+    private final Random random;
 
     @Autowired
     public DataAccessManager(@NonNull ExecutionHistoryServiceImpl executionHistoryService,
@@ -32,6 +36,7 @@ public class DataAccessManager {
         this.userService = userService;
         this.transactionService = transactionService;
         this.webClient = webClient;
+        this.random = new Random();
     }
 
     @Async
@@ -45,6 +50,14 @@ public class DataAccessManager {
         transaction.setTransaction_eff_ranking(eff_ranking);
         transaction.setTransaction_num_of_operations(num_of_operations);
         transactionService.addTransaction(transaction);
+    }
+
+    public Transaction getRandomTransaction() {
+        return transactionService.getTransactionById(random.nextInt(11144));
+    }
+
+    public User getRandomUser() {
+        return userService.getUserById(random.nextInt(6100));
     }
 
     @Async
@@ -75,8 +88,9 @@ public class DataAccessManager {
                                     Double transaction_system_ranking,
                                     Double transaction_eff_ranking,
                                     Integer transaction_num_of_operations,
-                                    Double reputation_score,
+                                    String reputation_score,
                                     LockingAction action_taken,
+                                    DominanceType dominanceType,
                                     Double transaction_execution_time,
                                     Double percentage_affected,
                                     Boolean recalculation_needed) {
@@ -102,6 +116,7 @@ public class DataAccessManager {
         executionHistory.setTransaction_num_of_operations(transaction_num_of_operations);
         executionHistory.setReputation_score(reputation_score);
         executionHistory.setAction_taken(action_taken.name());
+        executionHistory.setDominance_type(dominanceType.name());
         executionHistory.setTransaction_execution_time(transaction_execution_time);
         executionHistory.setPercentage_affected(percentage_affected);
         executionHistory.setRecalculation_needed(recalculation_needed);

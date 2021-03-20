@@ -1,0 +1,1 @@
+ALTER TABLE execution_history ALTER COLUMN reputation_score TYPE VARCHAR (200);

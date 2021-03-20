@@ -4,4 +4,5 @@ import com.jtravan.dal.model.Transaction;
 
 public interface TransactionService {
     void addTransaction(Transaction transaction);
+    Transaction getTransactionById(Integer id);
 }
