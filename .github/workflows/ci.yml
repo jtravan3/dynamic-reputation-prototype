@@ -27,6 +27,9 @@ jobs:
 #        run: gcloud auth configure-docker
       - name: Build Image with JIB
         run: ./mvnw compile jib:build
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
 #  deploy:
 #
