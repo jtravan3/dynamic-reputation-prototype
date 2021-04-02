@@ -111,10 +111,15 @@
                 <version>2.6.0</version>
                 <configuration>
                     <to>
-                        <image>gcr.io/plenary-shade-228414/dynamic-reputation-prototype</image>
+                        <image>docker.io/jtravan3/dynamic-reputation-prototype</image>
                         <tags>
+                            <tag>1.0.0</tag>
                             <tag>latest</tag>
                         </tags>
+                        <auth>
+                            <username>${env.DOCKER_HUB_USERNAME}</username>
+                            <password>${env.DOCKER_HUB_PASSWORD}</password>
+                        </auth>
                     </to>
                     <container>
                         <jvmFlags>
