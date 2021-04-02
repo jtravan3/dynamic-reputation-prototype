@@ -57,7 +57,7 @@ public class DataAccessManager {
     }
 
     public User getRandomUser() {
-        return userService.getUserById(random.nextInt(6100));
+        return userService.getUserById(random.nextInt(5856));
     }
 
     @Async
