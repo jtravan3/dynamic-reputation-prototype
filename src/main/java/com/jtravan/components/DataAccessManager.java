@@ -95,20 +95,10 @@ public class DataAccessManager {
                                     Double percentage_affected,
                                     Boolean recalculation_needed) {
 
-        User user = new User();
-        Transaction transaction = new Transaction();
         ExecutionHistory executionHistory = new ExecutionHistory();
 
-        user.setUserid(userid);
-        user.setUser_ranking(user_ranking);
-        transaction.setTransaction_id(transaction_id);
-        transaction.setTransaction_commit_ranking(transaction_commit_ranking);
-        transaction.setTransaction_system_ranking(transaction_system_ranking);
-        transaction.setTransaction_eff_ranking(transaction_eff_ranking);
-        transaction.setTransaction_num_of_operations(transaction_num_of_operations);
-
-        executionHistory.setUser(user);
-        executionHistory.setTransaction(transaction);
+        executionHistory.setUserid(userid);
+        executionHistory.setTransaction_id(transaction_id);
         executionHistory.setUser_ranking(user_ranking);
         executionHistory.setTransaction_commit_ranking(transaction_commit_ranking);
         executionHistory.setTransaction_system_ranking(transaction_system_ranking);

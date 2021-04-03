@@ -16,14 +16,12 @@ public class ExecutionHistory {
     @Column(name="id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "userid")
-    private User user;
+    @Column(name="userid")
+    private String userid;
     @Column(name="user_ranking")
     private Double user_ranking;
-    @ManyToOne
-    @JoinColumn(name = "transaction_id")
-    private Transaction transaction;
+    @Column(name="transaction_id")
+    private String transaction_id;
     @Column(name="transaction_commit_ranking")
     private Double transaction_commit_ranking;
     @Column(name="transaction_system_ranking")

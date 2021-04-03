@@ -59,9 +59,18 @@ public class StatusEndpoints {
 
     @GetMapping(value = "start", produces = MediaType.APPLICATION_JSON_VALUE)
     public String start() throws JsonProcessingException {
+        entryPoint.setExecutionLive(true);
         entryPoint.run();
         Map<String, String> info = new HashMap<>();
         info.put("started", "true");
+        return objectWriter.writeValueAsString(info);
+    }
+
+    @GetMapping(value = "stop", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String stop() throws JsonProcessingException {
+        entryPoint.setExecutionLive(false);
+        Map<String, String> info = new HashMap<>();
+        info.put("started", "false");
         return objectWriter.writeValueAsString(info);
     }
 }
