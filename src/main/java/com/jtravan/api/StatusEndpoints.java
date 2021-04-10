@@ -3,6 +3,7 @@ package com.jtravan.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.jtravan.components.ConfigurationService;
 import com.jtravan.components.EntryPoint;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,13 @@ public class StatusEndpoints {
     private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     private final EntryPoint entryPoint;
+    private final ConfigurationService configurationService;
 
     @Autowired
-    public StatusEndpoints(@NonNull EntryPoint entryPoint) {
+    public StatusEndpoints(@NonNull EntryPoint entryPoint,
+                           @NonNull ConfigurationService configurationService) {
         this.entryPoint = entryPoint;
+        this.configurationService = configurationService;
     }
 
     @GetMapping(value = "health", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -59,7 +63,7 @@ public class StatusEndpoints {
 
     @GetMapping(value = "start", produces = MediaType.APPLICATION_JSON_VALUE)
     public String start() throws JsonProcessingException {
-        entryPoint.setExecutionLive(true);
+        configurationService.setExecutionLive(true);
         entryPoint.run();
         Map<String, String> info = new HashMap<>();
         info.put("started", "true");
@@ -68,7 +72,7 @@ public class StatusEndpoints {
 
     @GetMapping(value = "stop", produces = MediaType.APPLICATION_JSON_VALUE)
     public String stop() throws JsonProcessingException {
-        entryPoint.setExecutionLive(false);
+        configurationService.setExecutionLive(false);
         Map<String, String> info = new HashMap<>();
         info.put("started", "false");
         return objectWriter.writeValueAsString(info);

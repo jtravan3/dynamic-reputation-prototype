@@ -42,6 +42,8 @@ public class ExecutionHistory {
     private Double percentage_affected;
     @Column(name="recalculation_needed")
     private Boolean recalculation_needed;
+    @Column(name="transaction_outcome")
+    private String transaction_outcome;
     @Column(name = "time_executed", insertable = false, updatable = false)
     @CreationTimestamp
     private Date time_executed;

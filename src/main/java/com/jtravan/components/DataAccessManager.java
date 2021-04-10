@@ -9,6 +9,7 @@ import com.jtravan.dal.model.User;
 import com.jtravan.model.DominanceType;
 import com.jtravan.model.LockingAction;
 import com.jtravan.model.RandomUsernameResponse;
+import com.jtravan.model.TransactionOutcome;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -60,6 +62,10 @@ public class DataAccessManager {
         return userService.getUserById(random.nextInt(5856));
     }
 
+    public void updateTransaction(Transaction transaction) {
+        transactionService.updateTransaction(transaction);
+    }
+
     @Async
     public void addUser(String userId, Double user_ranking) {
         User user = new User();
@@ -80,6 +86,18 @@ public class DataAccessManager {
         return response.getResults().get(0).getLogin().getUsername();
     }
 
+    public List<Transaction> getAllTransactions() {
+        return transactionService.getAllTransactions();
+    }
+
+    public List<ExecutionHistory> getAllHistory() {
+        return executionHistoryService.getAllHistory();
+    }
+
+    public List<User> getUsers() {
+        return userService.getAllUsers();
+    }
+
     @Async
     public void addExecutionHistory(String userid,
                                     Double user_ranking,
@@ -93,7 +111,8 @@ public class DataAccessManager {
                                     DominanceType dominanceType,
                                     Double transaction_execution_time,
                                     Double percentage_affected,
-                                    Boolean recalculation_needed) {
+                                    Boolean recalculation_needed,
+                                    TransactionOutcome transactionOutcome) {
 
         ExecutionHistory executionHistory = new ExecutionHistory();
 
@@ -110,6 +129,7 @@ public class DataAccessManager {
         executionHistory.setTransaction_execution_time(transaction_execution_time);
         executionHistory.setPercentage_affected(percentage_affected);
         executionHistory.setRecalculation_needed(recalculation_needed);
+        executionHistory.setTransaction_outcome(transactionOutcome.name());
 
         executionHistoryService.addExecutionHistory(executionHistory);
     }

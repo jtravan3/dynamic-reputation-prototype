@@ -10,28 +10,21 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 public class EntryPoint {
 
-    private final DataAccessManager dataAccessManager;
     private final TransactionOrchestrator transactionOrchestrator;
-    private boolean isExecutionLive;
+    private final ConfigurationService configurationService;
 
     @Autowired
-    public EntryPoint(@NonNull DataAccessManager dataAccessManager,
-                      @NonNull TransactionOrchestrator transactionOrchestrator) {
-        this.dataAccessManager = dataAccessManager;
+    public EntryPoint(@NonNull TransactionOrchestrator transactionOrchestrator,
+                      @NonNull ConfigurationService configurationService) {
         this.transactionOrchestrator = transactionOrchestrator;
-        this.isExecutionLive = true;
-    }
-
-    public void setExecutionLive(boolean isExecutionLive) {
-        this.isExecutionLive = isExecutionLive;
+        this.configurationService = configurationService;
     }
 
     @Async
     public void run() {
-        while(isExecutionLive) {
+        while(configurationService.isExecutionLive()) {
             try {
-                Thread.sleep(5000);
-                transactionOrchestrator.executeTransaction();
+                transactionOrchestrator.beginExecutions();
                 log.info("Successfully executed transactions");
             } catch (Exception e) {
                 e.printStackTrace();

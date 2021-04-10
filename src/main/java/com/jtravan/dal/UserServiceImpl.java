@@ -5,6 +5,9 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @Component
 public class UserServiceImpl implements UserService {
 
@@ -23,5 +26,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Integer id) {
         return userRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        List<User> rtnList = new LinkedList<>();
+        userRepository.findAll().forEach(rtnList::add);
+        return rtnList;
     }
 }
