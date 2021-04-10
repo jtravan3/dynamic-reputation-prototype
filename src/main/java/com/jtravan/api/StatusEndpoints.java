@@ -65,17 +65,22 @@ public class StatusEndpoints {
     public String start() throws JsonProcessingException {
         configurationService.setExecutionLive(true);
         entryPoint.run();
-        Map<String, String> info = new HashMap<>();
-        info.put("started", "true");
-        return objectWriter.writeValueAsString(info);
+        return objectWriter.writeValueAsString(getRunInfoMap());
     }
 
     @GetMapping(value = "stop", produces = MediaType.APPLICATION_JSON_VALUE)
     public String stop() throws JsonProcessingException {
         configurationService.setExecutionLive(false);
+        return objectWriter.writeValueAsString(getRunInfoMap());
+    }
+
+    private Map<String,String> getRunInfoMap() {
         Map<String, String> info = new HashMap<>();
-        info.put("started", "false");
-        return objectWriter.writeValueAsString(info);
+        info.put("isExecutionLive", String.valueOf(configurationService.isExecutionLive()));
+        info.put("conflictingPercentage", String.valueOf(configurationService.getConflictingPercentage()));
+        info.put("abortPercentage", String.valueOf(configurationService.getAbortPercentage()));
+        info.put("recalculationPercentage", String.valueOf(configurationService.getRecalculationPercentage()));
+        return info;
     }
 }
 

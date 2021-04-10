@@ -1,9 +1,11 @@
 package com.jtravan.components;
 
 import com.jtravan.dal.ExecutionHistoryServiceImpl;
+import com.jtravan.dal.RecalculationMetricServiceImpl;
 import com.jtravan.dal.TransactionServiceImpl;
 import com.jtravan.dal.UserServiceImpl;
 import com.jtravan.dal.model.ExecutionHistory;
+import com.jtravan.dal.model.RecalculationMetric;
 import com.jtravan.dal.model.Transaction;
 import com.jtravan.dal.model.User;
 import com.jtravan.model.DominanceType;
@@ -26,6 +28,7 @@ public class DataAccessManager {
     private final ExecutionHistoryServiceImpl executionHistoryService;
     private final UserServiceImpl userService;
     private final TransactionServiceImpl transactionService;
+    private final RecalculationMetricServiceImpl recalculationMetricService;
     private final WebClient webClient;
     private final Random random;
 
@@ -33,10 +36,12 @@ public class DataAccessManager {
     public DataAccessManager(@NonNull ExecutionHistoryServiceImpl executionHistoryService,
                              @NonNull UserServiceImpl userService,
                              @NonNull TransactionServiceImpl transactionService,
+                             @NonNull RecalculationMetricServiceImpl recalculationMetricService,
                              @NonNull WebClient webClient) {
         this.executionHistoryService = executionHistoryService;
         this.userService = userService;
         this.transactionService = transactionService;
+        this.recalculationMetricService = recalculationMetricService;
         this.webClient = webClient;
         this.random = new Random();
     }
@@ -64,6 +69,24 @@ public class DataAccessManager {
 
     public void updateTransaction(Transaction transaction) {
         transactionService.updateTransaction(transaction);
+    }
+
+    public void updateUser(User user) {
+        userService.updateUser(user);
+    }
+
+    public void addRecalculationMetric(Integer num_of_execution_history,
+                                       Integer num_of_users,
+                                       Integer num_of_transactions,
+                                       Double time_to_recalculate) {
+
+        RecalculationMetric recalculationMetric = new RecalculationMetric();
+        recalculationMetric.setNum_of_execution_history(num_of_execution_history);
+        recalculationMetric.setNum_of_users(num_of_users);
+        recalculationMetric.setNum_of_transactions(num_of_transactions);
+        recalculationMetric.setTime_to_recalculate(time_to_recalculate);
+
+        recalculationMetricService.addRecalculationMetric(recalculationMetric);
     }
 
     @Async

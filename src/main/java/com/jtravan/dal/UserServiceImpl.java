@@ -34,4 +34,9 @@ public class UserServiceImpl implements UserService {
         userRepository.findAll().forEach(rtnList::add);
         return rtnList;
     }
+
+    @Override
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
 }
