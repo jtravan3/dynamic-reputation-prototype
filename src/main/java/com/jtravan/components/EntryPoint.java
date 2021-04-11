@@ -1,5 +1,6 @@
 package com.jtravan.components;
 
+import io.sentry.Sentry;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ public class EntryPoint {
                 transactionOrchestrator.beginExecutions();
                 log.info("Successfully executed transactions");
             } catch (Exception e) {
+                Sentry.captureException(e);
                 e.printStackTrace();
             }
         }

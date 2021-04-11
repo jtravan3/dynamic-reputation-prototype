@@ -5,13 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jtravan.components.ConfigurationService;
 import com.jtravan.components.EntryPoint;
+import com.jtravan.model.Configuration;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +53,7 @@ public class StatusEndpoints {
 
     @GetMapping(value = "info", produces = MediaType.APPLICATION_JSON_VALUE)
     public String info() throws JsonProcessingException {
-        Map<String, String> info = new HashMap<>();
+        Map<String, String> info = getRunInfoMap();
         info.put("name", applicationName);
         info.put("version", applicationVersion);
         info.put("description", applicationDescription);
@@ -71,6 +70,28 @@ public class StatusEndpoints {
     @GetMapping(value = "stop", produces = MediaType.APPLICATION_JSON_VALUE)
     public String stop() throws JsonProcessingException {
         configurationService.setExecutionLive(false);
+        return objectWriter.writeValueAsString(getRunInfoMap());
+    }
+
+    @PostMapping(value = "update", consumes = "application/json", produces = "application/json")
+    public String updateConfiguration(@RequestBody @NonNull Configuration configuration) throws JsonProcessingException {
+
+        if (configuration.getIsExecutionLive() != null) {
+            configurationService.setExecutionLive(configuration.getIsExecutionLive());
+        }
+
+        if (configuration.getAbortPercentage() != null) {
+            configurationService.setAbortPercentage(configuration.getAbortPercentage());
+        }
+
+        if (configuration.getConflictingPercentage() != null) {
+            configurationService.setConflictingPercentage(configuration.getConflictingPercentage());
+        }
+
+        if (configuration.getRecalculationPercentage() != null) {
+            configurationService.setRecalculationPercentage(configuration.getRecalculationPercentage());
+        }
+
         return objectWriter.writeValueAsString(getRunInfoMap());
     }
 

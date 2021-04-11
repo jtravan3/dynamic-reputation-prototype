@@ -93,6 +93,16 @@
             <artifactId>commons-math3</artifactId>
             <version>3.5</version>
         </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring-boot-starter</artifactId>
+            <version>4.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-logback</artifactId>
+            <version>4.3.0</version>
+        </dependency>
 
 
         <!--Test dependencies-->

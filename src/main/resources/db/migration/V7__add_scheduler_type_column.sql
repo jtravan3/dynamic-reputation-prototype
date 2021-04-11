@@ -1,0 +1,1 @@
+ALTER TABLE execution_history ADD COLUMN scheduler_type VARCHAR (50) NOT NULL DEFAULT 'DRP';
