@@ -123,7 +123,6 @@
                     <to>
                         <image>docker.io/jtravan3/dynamic-reputation-prototype</image>
                         <tags>
-                            <tag>1.0.0</tag>
                             <tag>latest</tag>
                         </tags>
                         <auth>
