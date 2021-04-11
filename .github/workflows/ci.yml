@@ -33,7 +33,5 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-#      - name: Delete existing App
-#        run: doctl apps delete 03239d83-46b9-4117-b156-0dc2af00ed7e --force
-      - name: Create new App
-        run: doctl apps create --spec doctl/spec.yml
+      - name: Update App
+        run: doctl apps update 57c577da-7651-4d4c-ab42-447460a8eb60 --spec spec.yml
