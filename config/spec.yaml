@@ -18,7 +18,7 @@ services:
       registry: jtravan3
       registry_type: DOCKER_HUB
       repository: dynamic-reputation-prototype
-      tag: drp
+      tag: latest
     instance_count: 1
     instance_size_slug: basic-m
     name: dynamic-reputation-prototype
