@@ -33,5 +33,7 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Playing
+        run: ls -a
       - name: Update App
         run: doctl apps update 57c577da-7651-4d4c-ab42-447460a8eb60 --spec /home/runner/work/dynamic-reputation-prototype/config/spec.yaml
