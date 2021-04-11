@@ -124,6 +124,7 @@
                         <image>docker.io/jtravan3/dynamic-reputation-prototype</image>
                         <tags>
                             <tag>latest</tag>
+                            <tag>drp</tag>
                         </tags>
                         <auth>
                             <username>${env.DOCKER_HUB_USERNAME}</username>
