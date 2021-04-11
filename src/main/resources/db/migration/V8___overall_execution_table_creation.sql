@@ -1,0 +1,1 @@
+ALTER TABLE execution_history ADD COLUMN overall_execution_id VARCHAR (100) NOT NULL;

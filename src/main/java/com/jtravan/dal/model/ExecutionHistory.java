@@ -44,6 +44,8 @@ public class ExecutionHistory {
     private Boolean recalculation_needed;
     @Column(name="transaction_outcome")
     private String transaction_outcome;
+    @Column(name="overall_execution_id")
+    private String overall_execution_id;
     @Column(name = "time_executed", insertable = false, updatable = false)
     @CreationTimestamp
     private Date time_executed;

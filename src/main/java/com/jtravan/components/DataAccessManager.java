@@ -135,7 +135,8 @@ public class DataAccessManager {
                                     Double transaction_execution_time,
                                     Double percentage_affected,
                                     Boolean recalculation_needed,
-                                    TransactionOutcome transactionOutcome) {
+                                    TransactionOutcome transactionOutcome,
+                                    String overall_execution_id) {
 
         ExecutionHistory executionHistory = new ExecutionHistory();
 
@@ -153,6 +154,7 @@ public class DataAccessManager {
         executionHistory.setPercentage_affected(percentage_affected);
         executionHistory.setRecalculation_needed(recalculation_needed);
         executionHistory.setTransaction_outcome(transactionOutcome.name());
+        executionHistory.setOverall_execution_id(overall_execution_id);
 
         executionHistoryService.addExecutionHistory(executionHistory);
     }
