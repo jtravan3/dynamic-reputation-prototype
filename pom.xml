@@ -139,7 +139,7 @@
                             <port>5000</port>
                             <port>8080</port>
                         </ports>
-                        <format>OCI</format>
+<!--                        <format>OCI</format>-->
                     </container>
                 </configuration>
             </plugin>
