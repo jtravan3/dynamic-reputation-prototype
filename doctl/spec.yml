@@ -1,0 +1,26 @@
+databases:
+  - cluster_name: dynamic-reputation-database
+    db_name: defaultdb
+    db_user: doadmin
+    engine: PG
+    name: dynamic-reputation-database
+    production: true
+    version: "12"
+name: dynamic-reputation-prototype
+region: nyc
+services:
+  - envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${dynamic-reputation-database.DATABASE_URL}
+    http_port: 5000
+    image:
+      registry: jtravan3
+      registry_type: DOCKER_HUB
+      repository: dynamic-reputation-prototype
+      tag: drp
+    instance_count: 1
+    instance_size_slug: basic-m
+    name: dynamic-reputation-prototype
+    routes:
+      - path: /
