@@ -34,6 +34,6 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - name: Delete existing App
-        run: doctl apps delete 03239d83-46b9-4117-b156-0dc2af00ed7e
+        run: doctl apps delete 03239d83-46b9-4117-b156-0dc2af00ed7e --force
       - name: Create new App
         run: doctl apps create --spec ./doctl/spec.yml
