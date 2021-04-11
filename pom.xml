@@ -133,8 +133,8 @@
                     </to>
                     <container>
                         <jvmFlags>
-                            <jvmFlag>-Xms1024m</jvmFlag>
-                            <jvmFlag>-Xmx2048m</jvmFlag>
+                            <jvmFlag>-Xms2048m</jvmFlag>
+                            <jvmFlag>-Xmx4096m</jvmFlag>
                         </jvmFlags>
                         <ports>
                             <port>5000</port>
@@ -148,7 +148,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <jvmArguments>-Xms1024m -Xmx2048m</jvmArguments>
+                    <jvmArguments>-Xms2048m -Xmx4096m</jvmArguments>
                 </configuration>
             </plugin>
         </plugins>
