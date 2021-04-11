@@ -34,4 +34,4 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - name: Deploy App to Digital Ocean
-        run: doctl apps create-deployment 03239d83-46b9-4117-b156-0dc2af00ed7e
+        run: doctl apps create-deployment 03239d83-46b9-4117-b156-0dc2af00ed7e --force-rebuild
