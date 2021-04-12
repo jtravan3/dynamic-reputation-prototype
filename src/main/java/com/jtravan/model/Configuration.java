@@ -8,4 +8,6 @@ public class Configuration {
     private Integer conflictingPercentage;
     private Boolean isExecutionLive;
     private Integer recalculationPercentage;
+    private Integer totalTransactionsExecuted;
+    private Integer totalAffectedTransactions;
 }

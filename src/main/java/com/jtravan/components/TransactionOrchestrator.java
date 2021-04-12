@@ -6,8 +6,10 @@ import com.jtravan.model.DominancePair;
 import com.jtravan.model.DominanceType;
 import com.jtravan.model.LockingAction;
 import com.jtravan.model.TransactionOutcome;
+import io.sentry.Sentry;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,8 +25,6 @@ public class TransactionOrchestrator {
     private final ConfigurationService configurationService;
     private final RecalculationService recalculationService;
     private final Random random;
-    private int totalTransactionsExecuted;
-    private int totalAffectedTransactions;
 
     @Autowired
     public TransactionOrchestrator(@NonNull DataAccessManager dataAccessManager,
@@ -41,15 +41,22 @@ public class TransactionOrchestrator {
         String overallExecutionId = UUID.randomUUID().toString();
 
         boolean recalculationNeeded = false;
-        if (getPercentageAffected() >= configurationService.getRecalculationPercentage()) {
+        if (configurationService.getPercentageAffected() >= configurationService.getRecalculationPercentage()) {
             recalculationService.recalculate();
-            totalAffectedTransactions = 0;
-            totalTransactionsExecuted = 0;
+            configurationService.setTotalAffectedTransactions(0);
+            configurationService.setTotalTransactionsExecuted(0);
             recalculationNeeded = true;
         }
 
         User user1 = dataAccessManager.getRandomUser();
         Transaction transaction1 = dataAccessManager.getRandomTransaction();
+        User user2 = dataAccessManager.getRandomUser();
+        Transaction transaction2 = dataAccessManager.getRandomTransaction();
+
+        if (!ObjectUtils.allNotNull(user1, transaction1, user2, transaction2)) {
+            Sentry.captureMessage("User or Transaction was null. Gracefully handled it. Nothing to worry about.");
+            return;
+        }
 
         Double t1executionTime = getTransactionExecutionTime(transaction1);
         String t1RepScore = getReputationScore(user1, transaction1);
@@ -58,10 +65,6 @@ public class TransactionOrchestrator {
         log.info("T1: " + transaction1);
         log.info("T1 Execution Time: " + t1executionTime);
         log.info("T1 Reputation Score: " + t1RepScore);
-
-
-        User user2 = dataAccessManager.getRandomUser();
-        Transaction transaction2 = dataAccessManager.getRandomTransaction();
 
         Double t2executionTime = getTransactionExecutionTime(transaction2);
         String t2RepScore = getReputationScore(user2, transaction2);
@@ -99,14 +102,14 @@ public class TransactionOrchestrator {
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
                                 dominatingTransaction.getTransaction_num_of_operations(), dominatingRepScore, LockingAction.GRANT,
-                                dominancePair.getDominanceType(), dominatingTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId);
+                                dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId);
 
                         executeTransaction(weakTransactionTime);
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
                                 weakTransaction.getTransaction_num_of_operations(), weakRepScore, LockingAction.DECLINE,
-                                dominancePair.getDominanceType(), weakTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
                         // rerun after abort
                         executeTransaction(dominatingTransactionTime);
@@ -114,24 +117,24 @@ public class TransactionOrchestrator {
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
                                 dominatingTransaction.getTransaction_num_of_operations(), dominatingRepScore, LockingAction.GRANT,
-                                dominancePair.getDominanceType(), dominatingTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
                     } else {
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
                                 dominatingTransaction.getTransaction_num_of_operations(), dominatingRepScore, LockingAction.GRANT,
-                                dominancePair.getDominanceType(), dominatingTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
                         executeTransaction(weakTransactionTime);
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
                                 weakTransaction.getTransaction_num_of_operations(), weakRepScore, LockingAction.DECLINE,
-                                dominancePair.getDominanceType(), weakTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
                     }
                 } else {
-                    totalAffectedTransactions++;
+                    configurationService.incrementTotalAffectedTransactions();
 
                     if (randAbortInt <= configurationService.getAbortPercentage()) {
                         log.info("Random Abort Detected!");
@@ -141,49 +144,49 @@ public class TransactionOrchestrator {
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
                                 dominatingTransaction.getTransaction_num_of_operations(), dominatingRepScore, LockingAction.ELEVATE,
-                                dominancePair.getDominanceType(), dominatingTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId);
+                                dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId);
 
                         executeTransaction(weakTransactionTime);
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
                                 weakTransaction.getTransaction_num_of_operations(), weakRepScore, LockingAction.DECLINE,
-                                dominancePair.getDominanceType(), weakTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORTED_DUE_TO_ELEVATE, overallExecutionId);
+                                dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORTED_DUE_TO_ELEVATE, overallExecutionId);
 
                         executeTransaction(weakTransactionTime);
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
                                 weakTransaction.getTransaction_num_of_operations(), weakRepScore, LockingAction.GRANT,
-                                dominancePair.getDominanceType(), weakTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
                                 dominatingTransaction.getTransaction_num_of_operations(), dominatingRepScore, LockingAction.GRANT,
-                                dominancePair.getDominanceType(), dominatingTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
                     } else {
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
                                 dominatingTransaction.getTransaction_num_of_operations(), dominatingRepScore, LockingAction.ELEVATE,
-                                dominancePair.getDominanceType(), dominatingTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
                         executeTransaction(weakTransactionTime);
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
                                 weakTransaction.getTransaction_num_of_operations(), weakRepScore, LockingAction.DECLINE,
-                                dominancePair.getDominanceType(), weakTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORTED_DUE_TO_ELEVATE, overallExecutionId);
+                                dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORTED_DUE_TO_ELEVATE, overallExecutionId);
 
                         executeTransaction(weakTransactionTime);
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
                                 weakTransaction.getTransaction_num_of_operations(), weakRepScore, LockingAction.GRANT,
-                                dominancePair.getDominanceType(), weakTransactionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                                dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
                     }
                 }
             } else {
@@ -194,14 +197,14 @@ public class TransactionOrchestrator {
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                             transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                             transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
-                            DominanceType.NOT_COMPARABLE, t1executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId);
+                            DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId);
 
                     executeTransaction(t2executionTime);
                     dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                             transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                             transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                             transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.DECLINE,
-                            DominanceType.NOT_COMPARABLE, t2executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                            DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
                     // rerun after abort
                     executeTransaction(t1executionTime);
@@ -209,21 +212,21 @@ public class TransactionOrchestrator {
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                             transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                             transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
-                            DominanceType.NOT_COMPARABLE, t1executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                            DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
                 } else {
                     executeTransaction(t1executionTime);
                     dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                             transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                             transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
-                            DominanceType.NOT_COMPARABLE, t1executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                            DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
                     executeTransaction(t2executionTime);
                     dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                             transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                             transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                             transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.DECLINE,
-                            DominanceType.NOT_COMPARABLE, t2executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                            DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
                 }
             }
         } else { // No conflict
@@ -234,24 +237,20 @@ public class TransactionOrchestrator {
                     transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                     transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                     transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
-                    DominanceType.NO_CONFLICT, t1executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                    DominanceType.NO_CONFLICT, t1executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
 
             executeTransaction(t2executionTime);
             dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                     transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                     transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                     transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.GRANT,
-                    DominanceType.NO_CONFLICT,t2executionTime, getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
+                    DominanceType.NO_CONFLICT,t2executionTime, configurationService.getPercentageAffected(), recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId);
         }
-    }
-
-    public Double getPercentageAffected() {
-        return ((double) totalAffectedTransactions/ (double) totalTransactionsExecuted) * 100;
     }
 
     public void executeTransaction(Double executionTime) throws InterruptedException {
         Thread.sleep(executionTime.intValue());
-        totalTransactionsExecuted++;
+        configurationService.incrementTotalTransactionsExecuted();
     }
 
     public String getReputationScore(User user, Transaction transaction) {

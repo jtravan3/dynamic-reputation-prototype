@@ -21,7 +21,7 @@
 
     <groupId>com.jtravan</groupId>
     <artifactId>dynamic-reputation-prototype</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
     <dependencies>
         <dependency>

@@ -92,6 +92,14 @@ public class StatusEndpoints {
             configurationService.setRecalculationPercentage(configuration.getRecalculationPercentage());
         }
 
+        if (configuration.getTotalAffectedTransactions() != null) {
+            configurationService.setTotalAffectedTransactions(configuration.getTotalAffectedTransactions());
+        }
+
+        if (configuration.getTotalTransactionsExecuted() != null) {
+            configurationService.setTotalTransactionsExecuted(configuration.getTotalTransactionsExecuted());
+        }
+
         return objectWriter.writeValueAsString(getRunInfoMap());
     }
 
@@ -101,6 +109,9 @@ public class StatusEndpoints {
         info.put("conflictingPercentage", String.valueOf(configurationService.getConflictingPercentage()));
         info.put("abortPercentage", String.valueOf(configurationService.getAbortPercentage()));
         info.put("recalculationPercentage", String.valueOf(configurationService.getRecalculationPercentage()));
+        info.put("totalAffectedTransactions", String.valueOf(configurationService.getTotalAffectedTransactions()));
+        info.put("totalTransactionsExecuted", String.valueOf(configurationService.getTotalTransactionsExecuted()));
+        info.put("percentageAffected", String.valueOf(configurationService.getPercentageAffected()));
         return info;
     }
 }

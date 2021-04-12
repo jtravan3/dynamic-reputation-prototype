@@ -10,12 +10,16 @@ public class ConfigurationService {
     private int conflictingPercentage;
     private boolean isExecutionLive;
     private int recalculationPercentage;
+    private int totalTransactionsExecuted;
+    private int totalAffectedTransactions;
 
     @Autowired
     public ConfigurationService() {
         this.abortPercentage = 5;
         this.conflictingPercentage = 10;
         this.recalculationPercentage = 50;
+        this.totalAffectedTransactions = 0;
+        this.totalTransactionsExecuted = 0;
         this.isExecutionLive = true;
     }
 
@@ -49,5 +53,33 @@ public class ConfigurationService {
 
     public void setRecalculationPercentage(int recalculationPercentage) {
         this.recalculationPercentage = recalculationPercentage;
+    }
+
+    public int getTotalTransactionsExecuted() {
+        return totalTransactionsExecuted;
+    }
+
+    public void setTotalTransactionsExecuted(int totalTransactionsExecuted) {
+        this.totalTransactionsExecuted = totalTransactionsExecuted;
+    }
+
+    public void incrementTotalTransactionsExecuted(){
+        this.totalTransactionsExecuted++;
+    }
+
+    public int getTotalAffectedTransactions() {
+        return totalAffectedTransactions;
+    }
+
+    public void setTotalAffectedTransactions(int totalAffectedTransactions) {
+        this.totalAffectedTransactions = totalAffectedTransactions;
+    }
+
+    public void incrementTotalAffectedTransactions(){
+        this.totalAffectedTransactions++;
+    }
+
+    public Double getPercentageAffected() {
+        return ((double) this.totalAffectedTransactions/ (double) this.totalTransactionsExecuted) * 100;
     }
 }
