@@ -96,6 +96,7 @@ public class TransactionOrchestrator {
 
                 if (transaction1 == dominatingTransaction) {
                     if (randAbortInt <= configurationService.getAbortPercentage()) { // Random abort
+                        configurationService.incrementTotalAffectedTransactions();
                         log.info("Random Abort Detected!");
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
@@ -137,6 +138,7 @@ public class TransactionOrchestrator {
                     configurationService.incrementTotalAffectedTransactions();
 
                     if (randAbortInt <= configurationService.getAbortPercentage()) {
+                        configurationService.incrementTotalAffectedTransactions();
                         log.info("Random Abort Detected!");
                         log.info("Abort Due To Elevation Detected!");
                         executeTransaction(dominatingTransactionTime);
@@ -191,6 +193,7 @@ public class TransactionOrchestrator {
                 }
             } else {
                 if (randAbortInt <= configurationService.getAbortPercentage()) { // Random abort
+                    configurationService.incrementTotalAffectedTransactions();
                     log.info("Random Abort Detected!");
                     executeTransaction(t1executionTime);
                     dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
