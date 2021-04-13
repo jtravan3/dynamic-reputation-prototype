@@ -21,7 +21,7 @@
 
     <groupId>com.jtravan</groupId>
     <artifactId>dynamic-reputation-prototype</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 
     <dependencies>
         <dependency>
@@ -124,7 +124,7 @@
                         <image>docker.io/jtravan3/dynamic-reputation-prototype</image>
                         <tags>
                             <tag>latest</tag>
-                            <tag>${version}</tag>
+                            <tag>${project.version}</tag>
                         </tags>
                         <auth>
                             <username>${env.DOCKER_HUB_USERNAME}</username>

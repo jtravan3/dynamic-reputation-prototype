@@ -15,9 +15,9 @@ public class ConfigurationService {
 
     @Autowired
     public ConfigurationService() {
-        this.abortPercentage = 5;
-        this.conflictingPercentage = 10;
-        this.recalculationPercentage = 50;
+        this.abortPercentage = 25;
+        this.conflictingPercentage = 25;
+        this.recalculationPercentage = 10;
         this.totalAffectedTransactions = 0;
         this.totalTransactionsExecuted = 0;
         this.isExecutionLive = true;
