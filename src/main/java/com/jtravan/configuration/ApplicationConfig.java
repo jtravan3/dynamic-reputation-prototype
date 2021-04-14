@@ -13,8 +13,8 @@ public class ApplicationConfig {
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
+        executor.setMaxPoolSize(200);
+        executor.setQueueCapacity(1000);
         executor.setThreadNamePrefix("ASYNC-THREADS-");
         executor.initialize();
         return executor;
