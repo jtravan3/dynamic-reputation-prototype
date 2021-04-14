@@ -1,13 +1,7 @@
 package com.jtravan.components;
 
-import com.jtravan.dal.ExecutionHistoryServiceImpl;
-import com.jtravan.dal.RecalculationMetricServiceImpl;
-import com.jtravan.dal.TransactionServiceImpl;
-import com.jtravan.dal.UserServiceImpl;
-import com.jtravan.dal.model.ExecutionHistory;
-import com.jtravan.dal.model.RecalculationMetric;
-import com.jtravan.dal.model.Transaction;
-import com.jtravan.dal.model.User;
+import com.jtravan.dal.*;
+import com.jtravan.dal.model.*;
 import com.jtravan.model.DominanceType;
 import com.jtravan.model.LockingAction;
 import com.jtravan.model.RandomUsernameResponse;
@@ -29,6 +23,7 @@ public class DataAccessManager {
     private final UserServiceImpl userService;
     private final TransactionServiceImpl transactionService;
     private final RecalculationMetricServiceImpl recalculationMetricService;
+    private final UseCaseMetricServiceImpl useCaseMetricService;
     private final WebClient webClient;
     private final Random random;
 
@@ -37,11 +32,13 @@ public class DataAccessManager {
                              @NonNull UserServiceImpl userService,
                              @NonNull TransactionServiceImpl transactionService,
                              @NonNull RecalculationMetricServiceImpl recalculationMetricService,
+                             @NonNull UseCaseMetricServiceImpl useCaseMetricService,
                              @NonNull WebClient webClient) {
         this.executionHistoryService = executionHistoryService;
         this.userService = userService;
         this.transactionService = transactionService;
         this.recalculationMetricService = recalculationMetricService;
+        this.useCaseMetricService = useCaseMetricService;
         this.webClient = webClient;
         this.random = new Random();
     }
@@ -57,6 +54,10 @@ public class DataAccessManager {
         transaction.setTransaction_eff_ranking(eff_ranking);
         transaction.setTransaction_num_of_operations(num_of_operations);
         transactionService.addTransaction(transaction);
+    }
+
+    public UseCaseMetric getUseCaseMetricByName(String name) {
+        return useCaseMetricService.getUseCaseMetricByName(name);
     }
 
     public Transaction getRandomTransaction() {
@@ -78,13 +79,15 @@ public class DataAccessManager {
     public void addRecalculationMetric(Integer num_of_execution_history,
                                        Integer num_of_users,
                                        Integer num_of_transactions,
-                                       Double time_to_recalculate) {
+                                       Double time_to_recalculate,
+                                       String use_case) {
 
         RecalculationMetric recalculationMetric = new RecalculationMetric();
         recalculationMetric.setNum_of_execution_history(num_of_execution_history);
         recalculationMetric.setNum_of_users(num_of_users);
         recalculationMetric.setNum_of_transactions(num_of_transactions);
         recalculationMetric.setTime_to_recalculate(time_to_recalculate);
+        recalculationMetric.setUse_case(use_case);
 
         recalculationMetricService.addRecalculationMetric(recalculationMetric);
     }
@@ -136,7 +139,8 @@ public class DataAccessManager {
                                     Double percentage_affected,
                                     Boolean recalculation_needed,
                                     TransactionOutcome transactionOutcome,
-                                    String overall_execution_id) {
+                                    String overall_execution_id,
+                                    String use_case) {
 
         ExecutionHistory executionHistory = new ExecutionHistory();
 
@@ -155,6 +159,7 @@ public class DataAccessManager {
         executionHistory.setRecalculation_needed(recalculation_needed);
         executionHistory.setTransaction_outcome(transactionOutcome.name());
         executionHistory.setOverall_execution_id(overall_execution_id);
+        executionHistory.setUse_case(use_case);
 
         executionHistoryService.addExecutionHistory(executionHistory);
     }

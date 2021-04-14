@@ -46,6 +46,8 @@ public class ExecutionHistory {
     private String transaction_outcome;
     @Column(name="overall_execution_id")
     private String overall_execution_id;
+    @Column(name="use_case")
+    private String use_case;
     @Column(name = "time_executed", insertable = false, updatable = false)
     @CreationTimestamp
     private Date time_executed;

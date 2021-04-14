@@ -28,7 +28,7 @@ public class RecalculationService {
     }
 
     @Async
-    public void recalculate() {
+    public void recalculate(String useCase) {
         long startTime = System.nanoTime();
         log.info("Recalculation Initiated...");
         List<Transaction> allTransactions = dataAccessManager.getAllTransactions();
@@ -47,7 +47,7 @@ public class RecalculationService {
         long endTime = System.nanoTime();
 
         double duration = (double)((endTime - startTime) / 1000000);
-        dataAccessManager.addRecalculationMetric(allHistory.size(), num_of_users, num_of_transactions, duration);
+        dataAccessManager.addRecalculationMetric(allHistory.size(), num_of_users, num_of_transactions, duration, useCase);
         log.info("Recalculation Metric Entry Added");
 
         allTransactions.clear();

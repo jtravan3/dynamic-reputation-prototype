@@ -22,6 +22,8 @@ public class RecalculationMetric {
     private Integer num_of_transactions;
     @Column(name="time_to_recalculate")
     private Double time_to_recalculate;
+    @Column(name="use_case")
+    private String use_case;
     @Column(name = "time_executed", insertable = false, updatable = false)
     @CreationTimestamp
     private Date time_executed;
