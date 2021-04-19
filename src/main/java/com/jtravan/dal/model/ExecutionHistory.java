@@ -48,6 +48,12 @@ public class ExecutionHistory {
     private String overall_execution_id;
     @Column(name="use_case")
     private String use_case;
+    @Column(name="scheduler_type")
+    private String scheduler_type;
+    @Column(name="category")
+    private String category;
+    @Column(name="transaction_type")
+    private String transaction_type;
     @Column(name = "time_executed", insertable = false, updatable = false)
     @CreationTimestamp
     private Date time_executed;

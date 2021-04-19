@@ -10,4 +10,5 @@ public class Configuration {
     private Integer recalculationPercentage;
     private Integer totalTransactionsExecuted;
     private Integer totalAffectedTransactions;
+    private Integer minimumTransactionsInTheSystem;
 }

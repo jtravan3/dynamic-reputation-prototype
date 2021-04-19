@@ -62,56 +62,38 @@ public class StatusEndpoints {
 
     @GetMapping(value = "start", produces = MediaType.APPLICATION_JSON_VALUE)
     public String start() throws JsonProcessingException {
-        configurationService.setExecutionLive(true);
+        Configuration configuration = configurationService.getConfiguration();
+        configuration.setIsExecutionLive(true);
+        configurationService.setConfiguration(configuration);
         entryPoint.run();
         return objectWriter.writeValueAsString(getRunInfoMap());
     }
 
     @GetMapping(value = "stop", produces = MediaType.APPLICATION_JSON_VALUE)
     public String stop() throws JsonProcessingException {
-        configurationService.setExecutionLive(false);
+        Configuration configuration = configurationService.getConfiguration();
+        configuration.setIsExecutionLive(false);
+        configurationService.setConfiguration(configuration);
         return objectWriter.writeValueAsString(getRunInfoMap());
     }
 
     @PostMapping(value = "update", consumes = "application/json", produces = "application/json")
     public String updateConfiguration(@RequestBody @NonNull Configuration configuration) throws JsonProcessingException {
-
-        if (configuration.getIsExecutionLive() != null) {
-            configurationService.setExecutionLive(configuration.getIsExecutionLive());
-        }
-
-        if (configuration.getAbortPercentage() != null) {
-            configurationService.setAbortPercentage(configuration.getAbortPercentage());
-        }
-
-        if (configuration.getConflictingPercentage() != null) {
-            configurationService.setConflictingPercentage(configuration.getConflictingPercentage());
-        }
-
-        if (configuration.getRecalculationPercentage() != null) {
-            configurationService.setRecalculationPercentage(configuration.getRecalculationPercentage());
-        }
-
-        if (configuration.getTotalAffectedTransactions() != null) {
-            configurationService.setTotalAffectedTransactions(configuration.getTotalAffectedTransactions());
-        }
-
-        if (configuration.getTotalTransactionsExecuted() != null) {
-            configurationService.setTotalTransactionsExecuted(configuration.getTotalTransactionsExecuted());
-        }
-
+        configurationService.setConfiguration(configuration);
         return objectWriter.writeValueAsString(getRunInfoMap());
     }
 
     private Map<String,String> getRunInfoMap() {
+        Configuration configuration = configurationService.getConfiguration();
         Map<String, String> info = new HashMap<>();
-        info.put("isExecutionLive", String.valueOf(configurationService.isExecutionLive()));
-        info.put("conflictingPercentage", String.valueOf(configurationService.getConflictingPercentage()));
-        info.put("abortPercentage", String.valueOf(configurationService.getAbortPercentage()));
-        info.put("recalculationPercentage", String.valueOf(configurationService.getRecalculationPercentage()));
-        info.put("totalAffectedTransactions", String.valueOf(configurationService.getTotalAffectedTransactions()));
-        info.put("totalTransactionsExecuted", String.valueOf(configurationService.getTotalTransactionsExecuted()));
+        info.put("isExecutionLive", String.valueOf(configuration.getIsExecutionLive()));
+        info.put("conflictingPercentage", String.valueOf(configuration.getConflictingPercentage()));
+        info.put("abortPercentage", String.valueOf(configuration.getAbortPercentage()));
+        info.put("recalculationPercentage", String.valueOf(configuration.getRecalculationPercentage()));
+        info.put("totalAffectedTransactions", String.valueOf(configuration.getTotalAffectedTransactions()));
+        info.put("totalTransactionsExecuted", String.valueOf(configuration.getTotalTransactionsExecuted()));
         info.put("percentageAffected", String.valueOf(configurationService.getPercentageAffected()));
+        info.put("minimumTransactionsInTheSystem", String.valueOf(configuration.getMinimumTransactionsInTheSystem()));
         return info;
     }
 }

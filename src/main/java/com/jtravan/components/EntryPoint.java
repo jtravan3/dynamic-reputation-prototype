@@ -1,6 +1,7 @@
 package com.jtravan.components;
 
 import com.jtravan.dal.model.UseCaseMetric;
+import com.jtravan.model.Configuration;
 import io.sentry.Sentry;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -31,15 +32,17 @@ public class EntryPoint {
 
     @Async
     public void run() {
-
+        Configuration configuration = configurationService.getConfiguration();
+        UseCaseMetric useCaseMetric = null;
         if (useCase != null) {
-            UseCaseMetric useCaseMetric = dataAccessManager.getUseCaseMetricByName(useCase);
-            configurationService.setConflictingPercentage(useCaseMetric.getConflicting_percentage());
-            configurationService.setAbortPercentage(useCaseMetric.getAbort_percentage());
-            configurationService.setRecalculationPercentage(useCaseMetric.getRecalculation_percentage());
+            useCaseMetric = dataAccessManager.getUseCaseMetricByName(useCase);
+            configuration.setConflictingPercentage(useCaseMetric.getConflicting_percentage());
+            configuration.setAbortPercentage(useCaseMetric.getAbort_percentage());
+            configuration.setRecalculationPercentage(useCaseMetric.getRecalculation_percentage());
+            configurationService.setConfiguration(configuration);
         }
 
-        while(configurationService.isExecutionLive()) {
+        while(configuration.getIsExecutionLive()) {
             try {
                 transactionOrchestrator.beginExecutions(useCase);
                 log.info("Successfully executed transactions");
@@ -49,5 +52,12 @@ public class EntryPoint {
             }
         }
         log.info("Execution successfully stopped");
+
+        if (useCaseMetric != null) {
+            useCaseMetric.setTotal_affected_transactions(configuration.getTotalAffectedTransactions());
+            useCaseMetric.setTotal_transactions_executed(configuration.getTotalTransactionsExecuted());
+            dataAccessManager.updateUseCaseMetrics(useCaseMetric);
+            log.info("Successfully updated Use Case totals");
+        }
     }
 }

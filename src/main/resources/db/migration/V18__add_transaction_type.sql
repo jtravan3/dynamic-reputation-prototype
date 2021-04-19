@@ -1,0 +1,1 @@
+ALTER TABLE execution_history ADD COLUMN transaction_type VARCHAR (25) NOT NULL DEFAULT 'NORMAL';

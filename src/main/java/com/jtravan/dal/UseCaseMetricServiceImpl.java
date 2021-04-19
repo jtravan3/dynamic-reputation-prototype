@@ -27,4 +27,9 @@ public class UseCaseMetricServiceImpl implements UseCaseMetricService {
                 .findFirst().orElse(null);
 
     }
+
+    @Override
+    public void updateUseCaseMetrics(UseCaseMetric useCaseMetric) {
+        this.useCaseMetricsRepository.save(useCaseMetric);
+    }
 }

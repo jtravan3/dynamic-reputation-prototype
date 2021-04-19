@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,21 +29,21 @@ public class RecalculationService {
     }
 
     @Async
-    public void recalculate(String useCase) {
+    public CompletableFuture<Void> recalculate(String useCase) {
         long startTime = System.nanoTime();
         log.info("Recalculation Initiated...");
         List<Transaction> allTransactions = dataAccessManager.getAllTransactions();
-        List<ExecutionHistory> allHistory = dataAccessManager.getAllHistory();
+        List<ExecutionHistory> allHistory = dataAccessManager.getAllHistory()
+                .stream()
+                .filter(h -> h.getUse_case().equals(useCase)).collect(Collectors.toList());
         List<User> allUsers = dataAccessManager.getUsers();
 
-        log.info("Transaction Rankings Started...");
-        recalculateTransactionRankings(allTransactions, allHistory);
-        log.info("Transaction Rankings Completed");
+        log.info("Use Case: " + useCase + ". Total Executions: " + allHistory.size());
 
-        log.info("User Ranking Started...");
-        recalculateUserRanking(allUsers, allHistory);
-        log.info("User Ranking Completed");
+        CompletableFuture<Void> transactionRankingFuture = recalculateTransactionRankings(allTransactions, new LinkedList<>(allHistory));
+        CompletableFuture<Void> userRankingFuture =recalculateUserRanking(allUsers, new LinkedList<>(allHistory));
 
+        CompletableFuture.allOf(transactionRankingFuture, userRankingFuture).join();
         log.info("Recalculation Complete!");
         long endTime = System.nanoTime();
 
@@ -53,11 +54,15 @@ public class RecalculationService {
         allTransactions.clear();
         allHistory.clear();
         allUsers.clear();
+
+        return CompletableFuture.completedFuture(null);
     }
 
-    private void recalculateUserRanking(List<User> users,
+    @Async
+    public CompletableFuture<Void> recalculateUserRanking(List<User> users,
                                         List<ExecutionHistory> executionHistories) {
 
+        log.info("User Ranking Started...");
         Map<User, Long> userToNumOfAbortsMap = new HashMap<>();
 
         for (User user : users) {
@@ -88,11 +93,15 @@ public class RecalculationService {
             dataAccessManager.updateUser(user);
         }
 
+        return CompletableFuture.completedFuture(null);
     }
 
-    private void recalculateTransactionRankings(List<Transaction> transactions,
+
+    @Async
+    public CompletableFuture<Void> recalculateTransactionRankings(List<Transaction> transactions,
                                                 List<ExecutionHistory> executionHistories) {
 
+        log.info("Transaction Rankings Started...");
         Map<Transaction, Long> transactionToNumOfCommitMap = new HashMap<>();
         Map<Transaction, Long> transactionToElevateAbortsMap = new HashMap<>();
         Map<Transaction, Double> transactionToExecutionTimeMap = new HashMap<>();
@@ -150,5 +159,6 @@ public class RecalculationService {
            dataAccessManager.updateTransaction(transaction);
        }
 
+        return CompletableFuture.completedFuture(null);
     }
 }
