@@ -76,9 +76,9 @@ public class PredictionBasedScheduler extends TransactionScheduler {
                 String weakRepScore = "N/A";
 
                 if (transaction1 == dominatingTransaction) {
-                    if (randAbortInt <= configuration.getAbortPercentage()) { // Random abort
+                    if (shouldAbort(dominatingCategory, randAbortInt, configuration)) { // Abort
 
-                        log.info("Random Abort Detected!");
+                        log.info("Abort Detected!");
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addPbsExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
@@ -124,8 +124,8 @@ public class PredictionBasedScheduler extends TransactionScheduler {
                 } else {
                     configurationService.incrementTotalAffectedTransactions();
 
-                    if (randAbortInt <= configuration.getAbortPercentage()) {
-                        log.info("Random Abort Detected!");
+                    if (shouldAbort(dominatingCategory, randAbortInt, configuration)) {
+                        log.info("Abort Detected!");
                         log.info("Abort Due To Elevation Detected!");
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addPbsExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
@@ -186,9 +186,9 @@ public class PredictionBasedScheduler extends TransactionScheduler {
                     }
                 }
             } else {
-                if (randAbortInt <= configuration.getAbortPercentage()) { // Random abort
+                if (shouldAbort(getCategory(transaction1), randAbortInt, configuration)) { // Abort
 
-                    log.info("Random Abort Detected!");
+                    log.info("Abort Detected!");
                     executeTransaction(t1executionTime);
                     dataAccessManager.addPbsExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
@@ -277,6 +277,10 @@ public class PredictionBasedScheduler extends TransactionScheduler {
         }
         
         return pbsDominancePair;
+    }
+
+    private boolean shouldAbort(Category category, int randAbortInt, Configuration configuration) {
+        return (randAbortInt <= configuration.getAbortPercentage() || category == Category.LCHE || category == Category.LCLE);
     }
     
     private Category getCategory(Transaction transaction) {

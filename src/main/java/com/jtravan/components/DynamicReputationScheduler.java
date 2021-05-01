@@ -95,9 +95,9 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                 String weakRepScore = getReputationScore(weakUser, weakTransaction);
 
                 if (transaction1 == dominatingTransaction) {
-                    if (randAbortInt <= configuration.getAbortPercentage()) { // Random abort
+                    if (shouldAbort(dominatingUser, dominatingTransaction, randAbortInt, configuration)) { // Abort
 
-                        log.info("Random Abort Detected!");
+                        log.info("Abort Detected!");
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
@@ -143,8 +143,8 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                 } else {
                     configurationService.incrementTotalAffectedTransactions();
 
-                    if (randAbortInt <= configuration.getAbortPercentage()) {
-                        log.info("Random Abort Detected!");
+                    if (shouldAbort(dominatingUser, dominatingTransaction, randAbortInt, configuration)) {
+                        log.info("Abort Detected!");
                         log.info("Abort Due To Elevation Detected!");
                         executeTransaction(dominatingTransactionTime);
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
@@ -205,9 +205,9 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                     }
                 }
             } else {
-                if (randAbortInt <= configuration.getAbortPercentage()) { // Random abort
+                if (shouldAbort(user1, transaction1, randAbortInt, configuration)) { // Abort
 
-                    log.info("Random Abort Detected!");
+                    log.info("Abort Detected!");
                     executeTransaction(t1executionTime);
                     dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
@@ -293,6 +293,11 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                 + ","
                 + Precision.round(transaction.getTransaction_system_ranking(), 5)
                 + ">";
+    }
+
+    private boolean shouldAbort(User user, Transaction transaction, int randAbortInt, Configuration configuration) {
+        return (randAbortInt <= configuration.getAbortPercentage() ||
+                user.getUser_ranking() <= 0.2 || transaction.getTransaction_commit_ranking() <= 0.2);
     }
 
     public DominancePair establishDominance(Transaction t1, User u1, Transaction t2, User u2) {

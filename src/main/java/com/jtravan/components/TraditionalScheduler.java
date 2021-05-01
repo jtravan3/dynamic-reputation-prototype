@@ -54,9 +54,9 @@ public class TraditionalScheduler extends TransactionScheduler {
         // Conflict
         if (randInt <= configuration.getConflictingPercentage()) {
             log.info("Conflicting Transactions");
-            // Random abort
-            if (randAbortInt <= configuration.getAbortPercentage()) {
-                log.info("Random Abort Detected!");
+            // Abort
+            if (shouldAbort(user1, transaction1, randAbortInt, configuration)) {
+                log.info("Abort Detected!");
 
                 // Initial attempt
                 executeTransaction(t1executionTime);
@@ -146,5 +146,10 @@ public class TraditionalScheduler extends TransactionScheduler {
         }
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    private boolean shouldAbort(User user, Transaction transaction, int randAbortInt, Configuration configuration) {
+        return (randAbortInt <= configuration.getAbortPercentage() ||
+                user.getUser_ranking() <= 0.2 || transaction.getTransaction_commit_ranking() <= 0.2);
     }
 }
