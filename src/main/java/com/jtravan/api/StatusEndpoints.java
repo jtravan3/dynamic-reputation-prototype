@@ -94,6 +94,7 @@ public class StatusEndpoints {
         info.put("totalTransactionsExecuted", String.valueOf(configuration.getTotalTransactionsExecuted()));
         info.put("percentageAffected", String.valueOf(configurationService.getPercentageAffected()));
         info.put("minimumTransactionsInTheSystem", String.valueOf(configuration.getMinimumTransactionsInTheSystem()));
+        info.put("transactionThreshold", String.valueOf(configuration.getTransactionThreshold()));
         return info;
     }
 }
