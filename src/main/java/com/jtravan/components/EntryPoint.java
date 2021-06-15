@@ -17,7 +17,6 @@ public class EntryPoint {
     private final TransactionOrchestrator transactionOrchestrator;
     private final ConfigurationService configurationService;
     private final DataAccessManager dataAccessManager;
-    private int transactionsExecuted;
 
     @Value("${drp.use-case}")
     private String useCase;
@@ -29,7 +28,6 @@ public class EntryPoint {
         this.transactionOrchestrator = transactionOrchestrator;
         this.configurationService = configurationService;
         this.dataAccessManager = dataAccessManager;
-        this.transactionsExecuted = 0;
     }
 
     @Async
@@ -41,7 +39,7 @@ public class EntryPoint {
             configuration.setConflictingPercentage(useCaseMetric.getConflicting_percentage());
             configuration.setAbortPercentage(useCaseMetric.getAbort_percentage());
             configuration.setRecalculationPercentage(useCaseMetric.getRecalculation_percentage());
-            configuration.setTransactionThreshold(10000);
+            configuration.setTransactionThreshold(11000);
             configurationService.setConfiguration(configuration);
         }
 
@@ -49,10 +47,9 @@ public class EntryPoint {
 
         while(configuration.getIsExecutionLive()) {
 
-            if (transactionThreshold > 0 && transactionThreshold >= transactionsExecuted) {
+            if (transactionThreshold > 0 && transactionThreshold > configuration.getTotalTransactionsExecuted()) {
                 try {
                     transactionOrchestrator.beginExecutions(useCase);
-                    transactionsExecuted+=3;
                     log.info("Successfully executed transactions");
                 } catch (Exception e) {
                     Sentry.captureException(e);
@@ -60,7 +57,6 @@ public class EntryPoint {
                 }
             } else {
                 configuration.setIsExecutionLive(false);
-                transactionsExecuted = 0;
                 log.info("Transaction threshold reached");
             }
         }
