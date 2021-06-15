@@ -5,7 +5,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.3]
 
-### Changed
+### Fixed
+
+- Logic error found
+
+## [2.0.3]
+
+### Fixed
 
 - Fixed thresholds to record appropriately
 
