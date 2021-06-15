@@ -11,4 +11,5 @@ public class Configuration {
     private Integer totalTransactionsExecuted;
     private Integer totalAffectedTransactions;
     private Integer minimumTransactionsInTheSystem;
+    private Integer transactionThreshold;
 }

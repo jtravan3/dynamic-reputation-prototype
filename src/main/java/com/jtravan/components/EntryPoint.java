@@ -17,6 +17,7 @@ public class EntryPoint {
     private final TransactionOrchestrator transactionOrchestrator;
     private final ConfigurationService configurationService;
     private final DataAccessManager dataAccessManager;
+    private int transactionsExecuted;
 
     @Value("${drp.use-case}")
     private String useCase;
@@ -42,13 +43,22 @@ public class EntryPoint {
             configurationService.setConfiguration(configuration);
         }
 
+        int transactionThreshold = configuration.getTransactionThreshold();
+
         while(configuration.getIsExecutionLive()) {
-            try {
-                transactionOrchestrator.beginExecutions(useCase);
-                log.info("Successfully executed transactions");
-            } catch (Exception e) {
-                Sentry.captureException(e);
-                e.printStackTrace();
+
+            if (transactionThreshold > 0 && transactionThreshold < transactionsExecuted) {
+                try {
+                    transactionOrchestrator.beginExecutions(useCase);
+                    transactionsExecuted+=3;
+                    log.info("Successfully executed transactions");
+                } catch (Exception e) {
+                    Sentry.captureException(e);
+                    e.printStackTrace();
+                }
+            } else {
+                configuration.setIsExecutionLive(false);
+                log.info("Transaction threshold reached");
             }
         }
         log.info("Execution successfully stopped");

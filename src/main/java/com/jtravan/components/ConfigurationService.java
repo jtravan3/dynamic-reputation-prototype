@@ -18,6 +18,7 @@ public class ConfigurationService {
         configuration.setTotalAffectedTransactions(0);
         configuration.setTotalTransactionsExecuted(0);
         configuration.setMinimumTransactionsInTheSystem(100);
+        configuration.setTransactionThreshold(10000);
         configuration.setIsExecutionLive(false);
     }
 

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Component
 @CommonsLog
@@ -36,7 +35,7 @@ public class TransactionOrchestrator {
         this.random = new Random();
     }
 
-    public void beginExecutions(String useCase) throws InterruptedException, ExecutionException {
+    public void beginExecutions(String useCase) throws InterruptedException {
 
         String overallExecutionId = UUID.randomUUID().toString();
 
