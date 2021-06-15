@@ -29,6 +29,7 @@ public class EntryPoint {
         this.transactionOrchestrator = transactionOrchestrator;
         this.configurationService = configurationService;
         this.dataAccessManager = dataAccessManager;
+        this.transactionsExecuted = 0;
     }
 
     @Async
@@ -48,7 +49,7 @@ public class EntryPoint {
 
         while(configuration.getIsExecutionLive()) {
 
-            if (transactionThreshold > 0 && transactionThreshold < transactionsExecuted) {
+            if (transactionThreshold > 0 && transactionThreshold >= transactionsExecuted) {
                 try {
                     transactionOrchestrator.beginExecutions(useCase);
                     transactionsExecuted+=3;
@@ -59,6 +60,7 @@ public class EntryPoint {
                 }
             } else {
                 configuration.setIsExecutionLive(false);
+                transactionsExecuted = 0;
                 log.info("Transaction threshold reached");
             }
         }
