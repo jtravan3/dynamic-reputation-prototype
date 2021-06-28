@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -43,6 +45,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                                     String overallExecutionId,
                                                     int randInt, int randAbortInt) throws InterruptedException {
 
+        Instant startTime = Instant.now();
         Configuration configuration = configurationService.getConfiguration();
         CompletableFuture<Void> recalculationFuture = null;
 
@@ -280,6 +283,8 @@ public class DynamicReputationScheduler extends TransactionScheduler {
             }
         }
 
+        Instant endTime = Instant.now();
+        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) Duration.between(startTime, endTime).toMillis(), SchedulerType.DRP);
         return CompletableFuture.completedFuture(null);
     }
 

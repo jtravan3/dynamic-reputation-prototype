@@ -19,19 +19,22 @@ public class TransactionOrchestrator {
 
     private final DataAccessManager dataAccessManager;
     private final DynamicReputationScheduler dynamicReputationScheduler;
-    private final TraditionalScheduler traditionalScheduler;
+    private final TwoPhaseLockingScheduler twoPhaseLockingScheduler;
     private final PredictionBasedScheduler predictionBasedScheduler;
+    private final NoLockingScheduler noLockingScheduler;
     private final Random random;
 
     @Autowired
     public TransactionOrchestrator(@NonNull DataAccessManager dataAccessManager,
                                    @NonNull DynamicReputationScheduler dynamicReputationScheduler,
-                                   @NonNull TraditionalScheduler traditionalScheduler,
-                                   @NonNull PredictionBasedScheduler predictionBasedScheduler) {
+                                   @NonNull TwoPhaseLockingScheduler twoPhaseLockingScheduler,
+                                   @NonNull PredictionBasedScheduler predictionBasedScheduler,
+                                   @NonNull NoLockingScheduler noLockingScheduler) {
         this.dataAccessManager = dataAccessManager;
         this.dynamicReputationScheduler = dynamicReputationScheduler;
-        this.traditionalScheduler = traditionalScheduler;
+        this.twoPhaseLockingScheduler = twoPhaseLockingScheduler;
         this.predictionBasedScheduler = predictionBasedScheduler;
+        this.noLockingScheduler = noLockingScheduler;
         this.random = new Random();
     }
 
@@ -52,14 +55,16 @@ public class TransactionOrchestrator {
             return;
         }
 
-        CompletableFuture<Void> traditionalFuture = traditionalScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
+        CompletableFuture<Void> traditionalFuture = twoPhaseLockingScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
                 transaction2, overallExecutionId, randInt, randAbortInt);
         CompletableFuture<Void> pbsFuture = predictionBasedScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
                 transaction2, overallExecutionId, randInt, randAbortInt);
         CompletableFuture<Void> drpFuture = dynamicReputationScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
                 transaction2, overallExecutionId, randInt, randAbortInt);
+        CompletableFuture<Void> noLockingFuture = noLockingScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
+                transaction2, overallExecutionId, randInt, randAbortInt);
 
-        CompletableFuture.allOf(traditionalFuture,pbsFuture,drpFuture).join();
+        CompletableFuture.allOf(traditionalFuture,pbsFuture,drpFuture,noLockingFuture).join();
 
         log.info("All Schedulers completed");
     }

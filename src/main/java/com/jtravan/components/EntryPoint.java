@@ -39,7 +39,7 @@ public class EntryPoint {
             configuration.setConflictingPercentage(useCaseMetric.getConflicting_percentage());
             configuration.setAbortPercentage(useCaseMetric.getAbort_percentage());
             configuration.setRecalculationPercentage(useCaseMetric.getRecalculation_percentage());
-            configuration.setTransactionThreshold(11000);
+            configuration.setTransactionThreshold(5000);
             configurationService.setConfiguration(configuration);
         }
 

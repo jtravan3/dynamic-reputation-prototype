@@ -23,6 +23,7 @@ public class DataAccessManager {
     private final TransactionServiceImpl transactionService;
     private final RecalculationMetricServiceImpl recalculationMetricService;
     private final UseCaseMetricServiceImpl useCaseMetricService;
+    private final OverallExecutionHistoryServiceImpl overallExecutionMetricService;
     private final WebClient webClient;
     private final Random random;
 
@@ -32,12 +33,14 @@ public class DataAccessManager {
                              @NonNull TransactionServiceImpl transactionService,
                              @NonNull RecalculationMetricServiceImpl recalculationMetricService,
                              @NonNull UseCaseMetricServiceImpl useCaseMetricService,
+                             @NonNull OverallExecutionHistoryServiceImpl overallExecutionMetricService,
                              @NonNull WebClient webClient) {
         this.executionHistoryService = executionHistoryService;
         this.userService = userService;
         this.transactionService = transactionService;
         this.recalculationMetricService = recalculationMetricService;
         this.useCaseMetricService = useCaseMetricService;
+        this.overallExecutionMetricService = overallExecutionMetricService;
         this.webClient = webClient;
         this.random = new Random();
     }
@@ -174,6 +177,51 @@ public class DataAccessManager {
     }
 
     @Async
+    public void addNoLockingExecutionHistory(String userid,
+                                               Double user_ranking,
+                                               String transaction_id,
+                                               Double transaction_commit_ranking,
+                                               Double transaction_system_ranking,
+                                               Double transaction_eff_ranking,
+                                               Integer transaction_num_of_operations,
+                                               String reputation_score,
+                                               LockingAction action_taken,
+                                               DominanceType dominanceType,
+                                               Double transaction_execution_time,
+                                               Double percentage_affected,
+                                               Boolean recalculation_needed,
+                                               TransactionOutcome transactionOutcome,
+                                               String overall_execution_id,
+                                               String use_case,
+                                               TransactionType transactionType) {
+
+        ExecutionHistory executionHistory = new ExecutionHistory();
+
+        executionHistory.setUserid(userid);
+        executionHistory.setTransaction_id(transaction_id);
+        executionHistory.setUser_ranking(user_ranking);
+        executionHistory.setTransaction_commit_ranking(transaction_commit_ranking);
+        executionHistory.setTransaction_system_ranking(transaction_system_ranking);
+        executionHistory.setTransaction_eff_ranking(transaction_eff_ranking);
+        executionHistory.setTransaction_num_of_operations(transaction_num_of_operations);
+        executionHistory.setReputation_score(reputation_score);
+        executionHistory.setAction_taken(action_taken.name());
+        executionHistory.setDominance_type(dominanceType.name());
+        executionHistory.setTransaction_execution_time(transaction_execution_time);
+        executionHistory.setPercentage_affected(percentage_affected);
+        executionHistory.setRecalculation_needed(recalculation_needed);
+        executionHistory.setTransaction_outcome(transactionOutcome.name());
+        executionHistory.setOverall_execution_id(overall_execution_id);
+        executionHistory.setUse_case(use_case);
+        executionHistory.setScheduler_type(SchedulerType.NO_LOCKING.name());
+        executionHistory.setCategory(Category.NOT_APPLICABLE.name());
+        executionHistory.setTransaction_type(transactionType.name());
+
+        executionHistoryService.addExecutionHistory(executionHistory);
+        log.info("Successfully added no locking execution history");
+    }
+
+    @Async
     public void addTraditionalExecutionHistory(String userid,
                                     Double user_ranking,
                                     String transaction_id,
@@ -260,5 +308,18 @@ public class DataAccessManager {
 
         executionHistoryService.addExecutionHistory(executionHistory);
         log.info("Successfully added DRP execution history");
+    }
+
+    @Async
+    public void addOverallExecutionHistory(String overallExecutionId,
+                                          Double overallExecutionTime,
+                                          SchedulerType schedulerType) {
+
+        OverallExecutionHistory overallExecutionHistory = new OverallExecutionHistory();
+        overallExecutionHistory.setOverall_execution_id(overallExecutionId);
+        overallExecutionHistory.setOverall_execution_time(overallExecutionTime);
+        overallExecutionHistory.setScheduler_type(schedulerType.name());
+
+        overallExecutionMetricService.addOverallExecutionMetric(overallExecutionHistory);
     }
 }

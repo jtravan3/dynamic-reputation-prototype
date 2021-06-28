@@ -26,6 +26,18 @@ public abstract class TransactionScheduler {
         return Precision.round((random.nextDouble() * random.nextInt(250)) * transaction.getTransaction_num_of_operations(), 5);
     }
 
+    public Double getTransactionGrowingPhaseTime(Transaction transaction) {
+        return Precision.round((random.nextDouble() * random.nextInt(10)) * transaction.getTransaction_num_of_operations(), 5);
+    }
+
+    public Double getTransactionShrinkingPhaseTime(Transaction transaction) {
+        return Precision.round((random.nextDouble() * random.nextInt(10)) * transaction.getTransaction_num_of_operations(), 5);
+    }
+
+    public void executeLockPhase(Double executionTime) throws InterruptedException {
+        Thread.sleep(executionTime.intValue());
+    }
+
     public void executeTransaction(Double executionTime) throws InterruptedException {
         Thread.sleep(executionTime.intValue());
         configurationService.incrementTotalTransactionsExecuted();

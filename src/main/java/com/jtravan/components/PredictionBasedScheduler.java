@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -32,6 +34,7 @@ public class PredictionBasedScheduler extends TransactionScheduler {
     @Override
     CompletableFuture<Void> beginSchedulerExecution(String useCase, User user1, User user2, Transaction transaction1, Transaction transaction2, String overallExecutionId, int randInt, int randAbortInt) throws InterruptedException {
 
+        Instant startTime = Instant.now();
         Configuration configuration = configurationService.getConfiguration();
         boolean recalculationNeeded = false;
 
@@ -251,6 +254,9 @@ public class PredictionBasedScheduler extends TransactionScheduler {
                     DominanceType.NO_CONFLICT,t2executionTime, configurationService.getPercentageAffected(),
                     recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase, getCategory(transaction2));
         }
+
+        Instant endTime = Instant.now();
+        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) Duration.between(startTime, endTime).toMillis(), SchedulerType.PBS);
         return CompletableFuture.completedFuture(null);
     }
     
