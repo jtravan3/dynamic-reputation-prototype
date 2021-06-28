@@ -59,7 +59,7 @@ public class PredictionBasedScheduler extends TransactionScheduler {
         log.info("T2 Reputation Score: " + t2RepScore);
 
         // Conflict
-        if (randInt <= configuration.getConflictingPercentage()) {
+        if (randInt < configuration.getConflictingPercentage()) {
             log.info("Conflicting Transactions");
             PbsDominancePair dominancePair = establishPbsDominance(transaction1, user1, transaction2, user2);
             if (dominancePair.getDominatingCategory() != dominancePair.getWeakCategory()) {
@@ -286,7 +286,7 @@ public class PredictionBasedScheduler extends TransactionScheduler {
     }
 
     private boolean shouldAbort(Category category, int randAbortInt, Configuration configuration) {
-        return (randAbortInt <= configuration.getAbortPercentage() || category == Category.LCHE || category == Category.LCLE);
+        return (randAbortInt < configuration.getAbortPercentage() || category == Category.LCHE || category == Category.LCLE);
     }
     
     private Category getCategory(Transaction transaction) {

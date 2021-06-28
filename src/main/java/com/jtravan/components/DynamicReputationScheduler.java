@@ -80,7 +80,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
         log.info("T2 Reputation Score: " + t2RepScore);
 
         // Conflict
-        if (randInt <= configuration.getConflictingPercentage()) {
+        if (randInt < configuration.getConflictingPercentage()) {
             log.info("Conflicting Transactions");
             DominancePair dominancePair = establishDominance(transaction1, user1, transaction2, user2);
             if (dominancePair.getDominanceType() != DominanceType.NOT_COMPARABLE) {
@@ -301,7 +301,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
     }
 
     private boolean shouldAbort(User user, Transaction transaction, int randAbortInt, Configuration configuration) {
-        return (randAbortInt <= configuration.getAbortPercentage() ||
+        return (randAbortInt < configuration.getAbortPercentage() ||
                 user.getUser_ranking() <= 0.2 || transaction.getTransaction_commit_ranking() <= 0.2);
     }
 

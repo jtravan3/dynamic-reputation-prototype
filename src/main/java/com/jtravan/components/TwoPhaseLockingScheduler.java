@@ -61,7 +61,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
         log.info("T2 Shrinking Phase Time: " + t2ShrinkingPhaseTime);
 
         // Conflict
-        if (randInt <= configuration.getConflictingPercentage()) {
+        if (randInt < configuration.getConflictingPercentage()) {
             log.info("Conflicting Transactions");
             // Abort
             if (shouldAbort(user1, transaction1, randAbortInt, configuration)) {
@@ -178,7 +178,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
     }
 
     private boolean shouldAbort(User user, Transaction transaction, int randAbortInt, Configuration configuration) {
-        return (randAbortInt <= configuration.getAbortPercentage() ||
+        return (randAbortInt < configuration.getAbortPercentage() ||
                 user.getUser_ranking() <= 0.2 || transaction.getTransaction_commit_ranking() <= 0.2);
     }
 }
