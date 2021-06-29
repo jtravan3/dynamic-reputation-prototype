@@ -45,7 +45,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                                     String overallExecutionId,
                                                     int randInt, int randAbortInt) throws InterruptedException {
 
-        Instant startTime = Instant.now();
+        long startTime = System.nanoTime();
         Configuration configuration = configurationService.getConfiguration();
         CompletableFuture<Void> recalculationFuture = null;
 
@@ -101,7 +101,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                     if (shouldAbort(dominatingUser, dominatingTransaction, randAbortInt, configuration)) { // Abort
 
                         log.info("Abort Detected!");
-                        executeTransaction(dominatingTransactionTime);
+                        executeTransaction(dominatingTransactionTime).join();
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
@@ -109,7 +109,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId, useCase);
 
-                        executeTransaction(weakTransactionTime);
+                        executeTransaction(weakTransactionTime).join();
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
@@ -118,7 +118,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
 
                         // rerun after abort
-                        executeTransaction(dominatingTransactionTime);
+                        executeTransaction(dominatingTransactionTime).join();
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
@@ -127,7 +127,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
                         configurationService.incrementTotalAffectedTransactions();
                     } else {
-                        executeTransaction(dominatingTransactionTime);
+                        executeTransaction(dominatingTransactionTime).join();
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
@@ -135,7 +135,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
 
-                        executeTransaction(weakTransactionTime);
+                        executeTransaction(weakTransactionTime).join();
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
@@ -149,7 +149,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                     if (shouldAbort(dominatingUser, dominatingTransaction, randAbortInt, configuration)) {
                         log.info("Abort Detected!");
                         log.info("Abort Due To Elevation Detected!");
-                        executeTransaction(dominatingTransactionTime);
+                        executeTransaction(dominatingTransactionTime).join();
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
@@ -157,7 +157,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId, useCase);
 
-                        executeTransaction(weakTransactionTime);
+                        executeTransaction(weakTransactionTime).join();
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
@@ -165,7 +165,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.ABORTED_DUE_TO_ELEVATE, overallExecutionId, useCase);
 
-                        executeTransaction(weakTransactionTime);
+                        executeTransaction(weakTransactionTime).join();
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
@@ -173,7 +173,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
 
-                        executeTransaction(dominatingTransactionTime);
+                        executeTransaction(dominatingTransactionTime).join();
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
@@ -182,7 +182,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
                         configurationService.incrementTotalAffectedTransactions();
                     } else {
-                        executeTransaction(dominatingTransactionTime);
+                        executeTransaction(dominatingTransactionTime).join();
                         dataAccessManager.addExecutionHistory(dominatingUser.getUserid(), dominatingUser.getUser_ranking(),
                                 dominatingTransaction.getTransaction_id(), dominatingTransaction.getTransaction_commit_ranking(),
                                 dominatingTransaction.getTransaction_system_ranking(), dominatingTransaction.getTransaction_eff_ranking(),
@@ -190,7 +190,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), dominatingTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
 
-                        executeTransaction(weakTransactionTime);
+                        executeTransaction(weakTransactionTime).join();
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
@@ -198,7 +198,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                                 dominancePair.getDominanceType(), weakTransactionTime, configurationService.getPercentageAffected(),
                                 recalculationNeeded, TransactionOutcome.ABORTED_DUE_TO_ELEVATE, overallExecutionId, useCase);
 
-                        executeTransaction(weakTransactionTime);
+                        executeTransaction(weakTransactionTime).join();
                         dataAccessManager.addExecutionHistory(weakUser.getUserid(), weakUser.getUser_ranking(),
                                 weakTransaction.getTransaction_id(), weakTransaction.getTransaction_commit_ranking(),
                                 weakTransaction.getTransaction_system_ranking(), weakTransaction.getTransaction_eff_ranking(),
@@ -211,7 +211,9 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                 if (shouldAbort(user1, transaction1, randAbortInt, configuration)) { // Abort
 
                     log.info("Abort Detected!");
-                    executeTransaction(t1executionTime);
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction2)).join();
+                    executeTransaction(t1executionTime).join();
                     dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                             transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -219,25 +221,42 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                             DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                             recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId, useCase);
 
-                    executeTransaction(t2executionTime);
+                    executeTransaction(t2executionTime).join();
+                    dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
+                            transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
+                            transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
+                            transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.DECLINE,
+                            DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(),
+                            recalculationNeeded, TransactionOutcome.ABORT, overallExecutionId, useCase);
+
+                    // compensation transactions
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction2)).join();
+
+                    executeTransaction(t1executionTime).join();
+                    dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
+                            transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
+                            transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
+                            transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
+                            DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
+                            recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
+
+                    executeTransaction(t2executionTime).join();
                     dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                             transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                             transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                             transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.DECLINE,
                             DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(),
                             recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
+
+                    executeLockPhase(getTransactionShrinkingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionShrinkingPhaseTime(transaction2)).join();
 
                     // rerun after abort
-                    executeTransaction(t1executionTime);
-                    dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
-                            transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
-                            transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
-                            transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
-                            DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
-                            recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId,useCase);
-                    configurationService.incrementTotalAffectedTransactions();
-                } else {
-                    executeTransaction(t1executionTime);
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction2)).join();
+
+                    executeTransaction(t1executionTime).join();
                     dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                             transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                             transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -245,19 +264,45 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                             DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                             recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
 
-                    executeTransaction(t2executionTime);
+                    executeTransaction(t2executionTime).join();
                     dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                             transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                             transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                             transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.DECLINE,
                             DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(),
                             recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
+
+                    executeLockPhase(getTransactionShrinkingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionShrinkingPhaseTime(transaction2)).join();
+
+                    configurationService.incrementTotalAffectedTransactions();
+                } else {
+
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionGrowingPhaseTime(transaction2)).join();
+                    executeTransaction(t1executionTime).join();
+                    dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
+                            transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
+                            transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
+                            transaction1.getTransaction_num_of_operations(), t1RepScore, LockingAction.GRANT,
+                            DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
+                            recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
+
+                    executeTransaction(t2executionTime).join();
+                    dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
+                            transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
+                            transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
+                            transaction2.getTransaction_num_of_operations(), t2RepScore, LockingAction.DECLINE,
+                            DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(),
+                            recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
+                    executeLockPhase(getTransactionShrinkingPhaseTime(transaction1)).join();
+                    executeLockPhase(getTransactionShrinkingPhaseTime(transaction2)).join();
                 }
             }
         } else { // No conflict
             log.info("Non-Conflicting Transactions");
 
-            executeTransaction(t1executionTime);
+            executeTransaction(t1executionTime).join();
             dataAccessManager.addExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                     transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                     transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -265,7 +310,7 @@ public class DynamicReputationScheduler extends TransactionScheduler {
                     DominanceType.NO_CONFLICT, t1executionTime, configurationService.getPercentageAffected(),
                     recalculationNeeded, TransactionOutcome.COMMIT, overallExecutionId, useCase);
 
-            executeTransaction(t2executionTime);
+            executeTransaction(t2executionTime).join();
             dataAccessManager.addExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                     transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                     transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -283,8 +328,9 @@ public class DynamicReputationScheduler extends TransactionScheduler {
             }
         }
 
-        Instant endTime = Instant.now();
-        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) Duration.between(startTime, endTime).toMillis(), SchedulerType.DRP);
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;
+        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) duration, SchedulerType.DRP);
         return CompletableFuture.completedFuture(null);
     }
 

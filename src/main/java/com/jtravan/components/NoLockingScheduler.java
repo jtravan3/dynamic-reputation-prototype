@@ -34,7 +34,7 @@ public class NoLockingScheduler extends TransactionScheduler {
     @Async
     CompletableFuture<Void> beginSchedulerExecution(String useCase, User user1, User user2, Transaction transaction1, Transaction transaction2, String overallExecutionId,
                                                     int randInt, int randAbortInt) throws InterruptedException {
-        Instant startTime = Instant.now();
+        long startTime = System.nanoTime();
         Configuration configuration = configurationService.getConfiguration();
 
         if (!ObjectUtils.allNotNull(user1, transaction1, user2, transaction2)) {
@@ -60,15 +60,15 @@ public class NoLockingScheduler extends TransactionScheduler {
                 log.info("Abort Detected!");
 
                 // Initial attempt
-                executeTransaction(t1executionTime);
+                CompletableFuture<Void> future1 = executeTransaction(t1executionTime);
                 dataAccessManager.addNoLockingExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                         transaction1.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.ABORT, overallExecutionId, useCase, TransactionType.NORMAL);
-                
-                executeTransaction(t2executionTime);
+
+                CompletableFuture<Void> future2 = executeTransaction(t2executionTime);
                 dataAccessManager.addNoLockingExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -76,8 +76,10 @@ public class NoLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE,t2executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.ABORT, overallExecutionId, useCase, TransactionType.NORMAL);
 
+                CompletableFuture.allOf(future1, future2).join();
+
                 // compensation transactions
-                executeTransaction(t1executionTime);
+                executeTransaction(t1executionTime).join();
                 dataAccessManager.addNoLockingExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -85,7 +87,7 @@ public class NoLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.COMPENSATION);
                 
-                executeTransaction(t2executionTime);
+                executeTransaction(t2executionTime).join();
                 dataAccessManager.addNoLockingExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -94,50 +96,55 @@ public class NoLockingScheduler extends TransactionScheduler {
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.COMPENSATION);
 
                 // Rerun attempt
-                executeTransaction(t1executionTime);
+                CompletableFuture<Void> future3 = executeTransaction(t1executionTime);
                 dataAccessManager.addNoLockingExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                         transaction1.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
-                
-                executeTransaction(t2executionTime);
+
+                CompletableFuture<Void> future4 =executeTransaction(t2executionTime);
                 dataAccessManager.addNoLockingExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                         transaction2.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                         DominanceType.NOT_COMPARABLE,t2executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
+
+                CompletableFuture.allOf(future3, future4).join();
             } else {
-                executeTransaction(t1executionTime);
+                CompletableFuture<Void> future1 = executeTransaction(t1executionTime);
                 dataAccessManager.addNoLockingExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                         transaction1.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
-                
-                executeTransaction(t2executionTime);
+
+                CompletableFuture<Void> future2 = executeTransaction(t2executionTime);
                 dataAccessManager.addNoLockingExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                         transaction2.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                         DominanceType.NOT_COMPARABLE,t2executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
+
+                CompletableFuture.allOf(future1, future2).join();
             }
         } else {
             log.info("Non-Conflicting Transactions");
-            
-            executeTransaction(t1executionTime);
+
+            double longestExecutionTime = Math.max(t1executionTime, t2executionTime);
+
             dataAccessManager.addNoLockingExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                     transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                     transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
                     transaction1.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                     DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                     false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
-            
-            executeTransaction(t2executionTime);
+
+            executeTransaction(longestExecutionTime).join();
             dataAccessManager.addNoLockingExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                     transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                     transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -146,8 +153,9 @@ public class NoLockingScheduler extends TransactionScheduler {
                     false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
         }
 
-        Instant endTime = Instant.now();
-        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) Duration.between(startTime, endTime).toMillis(), SchedulerType.NO_LOCKING);
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;
+        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) duration, SchedulerType.NO_LOCKING);
         return CompletableFuture.completedFuture(null);
     }
 

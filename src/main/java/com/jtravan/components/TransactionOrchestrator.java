@@ -55,13 +55,13 @@ public class TransactionOrchestrator {
             return;
         }
 
+        CompletableFuture<Void> noLockingFuture = noLockingScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
+                transaction2, overallExecutionId, randInt, randAbortInt);
         CompletableFuture<Void> traditionalFuture = twoPhaseLockingScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
                 transaction2, overallExecutionId, randInt, randAbortInt);
         CompletableFuture<Void> pbsFuture = predictionBasedScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
                 transaction2, overallExecutionId, randInt, randAbortInt);
         CompletableFuture<Void> drpFuture = dynamicReputationScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
-                transaction2, overallExecutionId, randInt, randAbortInt);
-        CompletableFuture<Void> noLockingFuture = noLockingScheduler.beginSchedulerExecution(useCase, user1, user2, transaction1,
                 transaction2, overallExecutionId, randInt, randAbortInt);
 
         CompletableFuture.allOf(traditionalFuture,pbsFuture,drpFuture,noLockingFuture).join();

@@ -34,7 +34,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
     @Async
     CompletableFuture<Void> beginSchedulerExecution(String useCase, User user1, User user2, Transaction transaction1, Transaction transaction2, String overallExecutionId,
                                                     int randInt, int randAbortInt) throws InterruptedException {
-        Instant startTime = Instant.now();
+        long startTime = System.nanoTime();
         Configuration configuration = configurationService.getConfiguration();
 
         if (!ObjectUtils.allNotNull(user1, transaction1, user2, transaction2)) {
@@ -68,8 +68,9 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                 log.info("Abort Detected!");
 
                 // Initial attempt
-                executeLockPhase(t1GrowingPhaseTime);
-                executeTransaction(t1executionTime);
+                executeLockPhase(t1GrowingPhaseTime).join();
+                executeLockPhase(t2GrowingPhaseTime).join();
+                executeTransaction(t1executionTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -77,8 +78,8 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.ABORT, overallExecutionId, useCase, TransactionType.NORMAL);
 
-                executeLockPhase(t2GrowingPhaseTime);
-                executeTransaction(t2executionTime);
+
+                executeTransaction(t2executionTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -86,10 +87,13 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE,t2executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.ABORT, overallExecutionId, useCase, TransactionType.NORMAL);
 
+                executeLockPhase(t1ShrinkingPhaseTime).join();
+                executeLockPhase(t2ShrinkingPhaseTime).join();
+
                 // compensation transactions
-                executeLockPhase(t1GrowingPhaseTime);
-                executeTransaction(t1executionTime);
-                executeLockPhase(t1ShrinkingPhaseTime);
+                executeLockPhase(t1GrowingPhaseTime).join();
+                executeTransaction(t1executionTime).join();
+                executeLockPhase(t1ShrinkingPhaseTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -97,9 +101,9 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.COMPENSATION);
 
-                executeLockPhase(t2GrowingPhaseTime);
-                executeTransaction(t2executionTime);
-                executeLockPhase(t2ShrinkingPhaseTime);
+                executeLockPhase(t2GrowingPhaseTime).join();
+                executeTransaction(t2executionTime).join();
+                executeLockPhase(t2ShrinkingPhaseTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -108,9 +112,9 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.COMPENSATION);
 
                 // Rerun attempt
-                executeLockPhase(t1GrowingPhaseTime);
-                executeTransaction(t1executionTime);
-                executeLockPhase(t1ShrinkingPhaseTime);
+                executeLockPhase(t1GrowingPhaseTime).join();
+                executeLockPhase(t2GrowingPhaseTime).join();
+                executeTransaction(t1executionTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -118,19 +122,21 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
 
-                executeLockPhase(t2GrowingPhaseTime);
-                executeTransaction(t2executionTime);
-                executeLockPhase(t2ShrinkingPhaseTime);
+
+                executeTransaction(t2executionTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                         transaction2.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                         DominanceType.NOT_COMPARABLE,t2executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
+
+                executeLockPhase(t1ShrinkingPhaseTime).join();
+                executeLockPhase(t2ShrinkingPhaseTime).join();
             } else {
-                executeLockPhase(t1GrowingPhaseTime);
-                executeTransaction(t1executionTime);
-                executeLockPhase(t1ShrinkingPhaseTime);
+                executeLockPhase(t1GrowingPhaseTime).join();
+                executeTransaction(t1executionTime).join();
+                executeLockPhase(t1ShrinkingPhaseTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -138,9 +144,9 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
 
-                executeLockPhase(t2GrowingPhaseTime);
-                executeTransaction(t2executionTime);
-                executeLockPhase(t2ShrinkingPhaseTime);
+                executeLockPhase(t2GrowingPhaseTime).join();
+                executeTransaction(t2executionTime).join();
+                executeLockPhase(t2ShrinkingPhaseTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
@@ -151,9 +157,9 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
         } else {
             log.info("Non-Conflicting Transactions");
 
-            executeLockPhase(t1GrowingPhaseTime);
-            executeTransaction(t1executionTime);
-            executeLockPhase(t1ShrinkingPhaseTime);
+            CompletableFuture<Void> future1 = executeLockPhase(t1GrowingPhaseTime);
+            CompletableFuture<Void> future2 = executeTransaction(t1executionTime);
+            CompletableFuture<Void> future3 = executeLockPhase(t1ShrinkingPhaseTime);
             dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                     transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                     transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -161,19 +167,22 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                     DominanceType.NOT_COMPARABLE, t1executionTime, configurationService.getPercentageAffected(),
                     false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
 
-            executeLockPhase(t2GrowingPhaseTime);
-            executeTransaction(t2executionTime);
-            executeLockPhase(t2ShrinkingPhaseTime);
+            CompletableFuture<Void> future4 = executeLockPhase(t2GrowingPhaseTime);
+            CompletableFuture<Void> future5 = executeTransaction(t2executionTime);
+            CompletableFuture<Void> future6 = executeLockPhase(t2ShrinkingPhaseTime);
             dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                     transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                     transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
                     transaction2.getTransaction_num_of_operations(), "N/A", LockingAction.GRANT,
                     DominanceType.NOT_COMPARABLE, t2executionTime, configurationService.getPercentageAffected(),
                     false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
+
+            CompletableFuture.allOf(future1, future2, future3, future4, future5, future6).join();
         }
 
-        Instant endTime = Instant.now();
-        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) Duration.between(startTime, endTime).toMillis(), SchedulerType.TRADITIONAL);
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;
+        dataAccessManager.addOverallExecutionHistory(overallExecutionId, (double) duration, SchedulerType.TRADITIONAL);
         return CompletableFuture.completedFuture(null);
     }
 
