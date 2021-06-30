@@ -28,7 +28,9 @@ public abstract class TransactionScheduler {
     }
 
     public Double getTransactionGrowingPhaseTime(Transaction transaction) {
-        return Precision.round(transaction.getTransaction_num_of_operations() * 2.0, 5);
+        double growingPhaseTime = Precision.round(transaction.getTransaction_num_of_operations() * 2.0, 5);
+        double conflictingWaitTime = Precision.round(configurationService.getConfiguration().getConflictingPercentage() * 2.0, 5);
+        return growingPhaseTime + conflictingWaitTime;
     }
 
     public Double getTransactionShrinkingPhaseTime(Transaction transaction) {
@@ -43,8 +45,15 @@ public abstract class TransactionScheduler {
 
     @Async
     public CompletableFuture<Void> executeTransaction(Double executionTime) throws InterruptedException {
+        return executeTransaction(executionTime, true);
+    }
+
+    @Async
+    public CompletableFuture<Void> executeTransaction(Double executionTime, boolean incrementCount) throws InterruptedException {
         Thread.sleep(executionTime.intValue());
-        configurationService.incrementTotalTransactionsExecuted();
+        if (incrementCount) {
+            configurationService.incrementTotalTransactionsExecuted();
+        }
         return CompletableFuture.completedFuture(null);
     }
 

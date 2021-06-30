@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -92,7 +90,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
 
                 // compensation transactions
                 executeLockPhase(t1GrowingPhaseTime).join();
-                executeTransaction(t1executionTime).join();
+                executeTransaction(t1executionTime, false).join();
                 executeLockPhase(t1ShrinkingPhaseTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
@@ -102,7 +100,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.COMPENSATION);
 
                 executeLockPhase(t2GrowingPhaseTime).join();
-                executeTransaction(t2executionTime).join();
+                executeTransaction(t2executionTime, false).join();
                 executeLockPhase(t2ShrinkingPhaseTime).join();
                 dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
@@ -114,7 +112,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                 // Rerun attempt
                 executeLockPhase(t1GrowingPhaseTime).join();
                 executeLockPhase(t2GrowingPhaseTime).join();
-                executeTransaction(t1executionTime).join();
+                executeTransaction(t1executionTime, false).join();
                 dataAccessManager.addTraditionalExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                         transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                         transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
@@ -123,7 +121,7 @@ public class TwoPhaseLockingScheduler extends TransactionScheduler {
                         false, TransactionOutcome.COMMIT, overallExecutionId, useCase, TransactionType.NORMAL);
 
 
-                executeTransaction(t2executionTime).join();
+                executeTransaction(t2executionTime, false).join();
                 dataAccessManager.addTraditionalExecutionHistory(user2.getUserid(), user2.getUser_ranking(),
                         transaction2.getTransaction_id(), transaction2.getTransaction_commit_ranking(),
                         transaction2.getTransaction_system_ranking(), transaction2.getTransaction_eff_ranking(),
