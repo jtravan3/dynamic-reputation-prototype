@@ -62,9 +62,9 @@ public class EntryPoint {
     public void run() {
         Configuration configuration = configurationService.getConfiguration();
         int transactionThreshold = configuration.getTransactionThreshold();
-        configuration.setIsExecutionLive(true);
 
         for (String useCase : useCases) {
+            configuration.setIsExecutionLive(true);
             log.info("Executing use case: " + useCase);
             UseCaseMetric useCaseMetric = updateUseCase(useCase);
             while (configuration.getIsExecutionLive()) {

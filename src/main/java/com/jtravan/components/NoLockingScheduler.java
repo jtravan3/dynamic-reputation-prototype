@@ -172,9 +172,8 @@ public class NoLockingScheduler extends TransactionScheduler {
             log.info("Non-Conflicting Transactions");
 
             double longestExecutionTime = Math.max(t1executionTime, t2executionTime);
-            double shortestExecutionTime = Math.min(t1executionTime, t2executionTime);
 
-            executeTransaction(shortestExecutionTime);
+            configurationService.incrementTotalTransactionsExecuted();
             dataAccessManager.addNoLockingExecutionHistory(user1.getUserid(), user1.getUser_ranking(),
                     transaction1.getTransaction_id(), transaction1.getTransaction_commit_ranking(),
                     transaction1.getTransaction_system_ranking(), transaction1.getTransaction_eff_ranking(),
